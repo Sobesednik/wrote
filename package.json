@@ -1,0 +1,28 @@
+{
+  "name": "wrote",
+  "version": "0.1.0",
+  "description": "Promise-based writing to filesystem for Node.js",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "zoroaster test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sobesednik/wrote.git"
+  },
+  "keywords": [
+    "write",
+    "wrote",
+    "written",
+    "promise"
+  ],
+  "author": "Anton <anton@sobesednik.media>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Sobesednik/wrote/issues"
+  },
+  "homepage": "https://github.com/Sobesednik/wrote#readme",
+  "devDependencies": {
+    "zoroaster": "0.4.4"
+  }
+}

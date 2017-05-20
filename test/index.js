@@ -1,3 +1,5 @@
+'use strict'
+
 const assert = require('assert')
 const Writable = require('stream').Writable
 const path = require('path')
@@ -78,22 +80,24 @@ const eraseTestSuite = {
                 return wrote.erase(ws)
             })
             .then((ws) => {
-                assert(!ws.writable)
+                assert(ws.closed) // if node 6+, assert writable == false
                 assert.equal(ws.path, file)
             })
             .then(() => assertFileDoesNotExist(file))
     },
     'should erase temp file': () => {
-        'use strict'
         let file
+        let writeStream
+
         return wrote()
             .then((ws) => {
-                file = ws.path
-                return wrote.erase(ws)
+                writeStream = ws
+                file = writeStream.path
+                return wrote.erase(writeStream)
             })
-            .then((ws) => {
-                assert(!ws.writable)
-                assert.equal(ws.path, file)
+            .then(() => {
+                assert(writeStream.closed)
+                assert.equal(writeStream.path, file)
             })
             .then(() => assertFileDoesNotExist(file))
     },
@@ -106,7 +110,7 @@ const eraseTestSuite = {
                 return makePromise(writeStream.end.bind(writeStream))
             })
             .then(() => {
-                assert(!writeStream.writable) // ended writable stream
+                assert(writeStream.closed)
                 assert.equal(writeStream.path, file)
             })
             .then(() => assertFileExists(file))

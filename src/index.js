@@ -30,14 +30,21 @@ function unlink(path) {
 }
 
 function endStream(ws) {
-    const promise = makePromise(ws.end.bind(ws), null, ws)
-    return promise
+    if (!ws.writable || ws.closed) {
+        return Promise.reject(new Error('stream should be writable'))
+    }
+    const promise = new Promise((resolve, reject) => {
+        ws.once('close', () => resolve(ws))
+        ws.once('error', reject)
+    })
+    return makePromise(ws.close.bind(ws))
+        .then(() => promise)
 }
 
 function erase(ws) {
     return unlink(ws.path)
         .then(() => {
-            if (ws.writable && !ws.closed) {
+            if (!ws.closed) {
                 return endStream(ws)
             }
             return ws

@@ -3,10 +3,18 @@ const wrote = require('../src/index')
 const Writable = require('stream').Writable
 const os = require('os')
 const path = require('path')
+const fs = require('fs')
 
 const tempFile = path.join(os.tmpdir(), 'random-file-name')
 
+const createTempFilePath = () => {
+    return path.join(os.tmpdir(), `wrote-${Math.floor(Math.random() * 1e3)}.data`)
+}
+
 const wroteTestSuite = {
+    context: {
+        createTempFilePath,
+    },
     'should be a function': () => {
         assert(typeof wrote === 'function')
     },
@@ -38,6 +46,28 @@ const wroteTestSuite = {
                     ws.close()
                 })
                 return promise
+            })
+    },
+    'should erase': (ctx) => {
+        const filepath = ctx.createTempFilePath()
+        return wrote(filepath)
+            .then((ws) => {
+                return wrote.erase(ws)
+            })
+            .then((ws) => {
+                assert(!ws.writable)
+                assert.equal(ws.path, filepath)
+                return new Promise((resolve, reject) => {
+                    fs.stat(ws.path, (err, stats) => {
+                        if (err) return reject(err)
+                        return resolve(stats)
+                    })
+                })
+            })
+            .then(() => {
+                throw new Error('should have been rejected')
+            }, (err) => {
+                assert(/^ENOENT: no such file or directory/.test(err.message))
             })
     }
 }

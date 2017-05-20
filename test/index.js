@@ -48,10 +48,33 @@ const wroteTestSuite = {
                 return promise
             })
     },
-    'should erase': (ctx) => {
+    'should erase passed file': (ctx) => {
         const filepath = ctx.createTempFilePath()
         return wrote(filepath)
             .then((ws) => {
+                return wrote.erase(ws)
+            })
+            .then((ws) => {
+                assert(!ws.writable)
+                assert.equal(ws.path, filepath)
+                return new Promise((resolve, reject) => {
+                    fs.stat(ws.path, (err, stats) => {
+                        if (err) return reject(err)
+                        return resolve(stats)
+                    })
+                })
+            })
+            .then(() => {
+                throw new Error('should have been rejected')
+            }, (err) => {
+                assert(/^ENOENT: no such file or directory/.test(err.message))
+            })
+    },
+    'should erase temp file': () => {
+        let filepath
+        return wrote()
+            .then((ws) => {
+                filepath = ws.path
                 return wrote.erase(ws)
             })
             .then((ws) => {

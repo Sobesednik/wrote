@@ -68,7 +68,7 @@ return wrote(file)
 
 ## todo
 
-- pass random function generator
+- pass options to `fs.createWriteStream`
 
 ---
 

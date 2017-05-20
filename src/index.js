@@ -1,21 +1,21 @@
-const Writable = require('stream').Writable
 const fs = require('fs')
 const os = require('os')
 const path = require('path')
+const makePromise = require('makepromise')
 const TEMP_DIR = os.tmpdir()
 
 function openFileForWrite(filepath) {
-    return Promise.resolve()
-        .then(() => {
-            const ws = fs.createWriteStream(filepath, {
-                flags: 'w',
-                defaultEncoding: 'utf8',
-                fd: null,
-                mode: 0o666,
-                autoClose: true,
-            })
-            return ws
+    return new Promise((resolve, reject) => {
+        const ws = fs.createWriteStream(filepath, {
+            flags: 'w',
+            defaultEncoding: 'utf8',
+            fd: null,
+            mode: 0o666,
+            autoClose: true,
         })
+        ws.once('open', () => resolve(ws))
+        ws.once('error', reject)
+    })
 }
 
 function getTempFile() {
@@ -24,27 +24,35 @@ function getTempFile() {
     return tempFile
 }
 
-function erase(ws) {
-    return new Promise((resolve, reject)=> {
-        fs.unlink(ws.path, (err) => {
-            if (err) return reject(err)
-            resolve(ws)
-        })
-    })
-    .then((ws) => {
-        return new Promise((resolve, reject) => {
-            ws.end((err) => {
-                if (err) return reject(err)
-                return resolve(ws)
-            })
-        })
-    })
+function unlink(path) {
+    const promise = makePromise(fs.unlink, path, path)
+    return promise
 }
 
-const wrote = function wrote(f) {
-    const file = (typeof f).toLowerCase() === 'string' ?
-        f : getTempFile()
-    return openFileForWrite(file)
+function endStream(ws) {
+    const promise = makePromise(ws.end.bind(ws), null, ws)
+    return promise
+}
+
+function erase(ws) {
+    return unlink(ws.path)
+        .then(() => {
+            if (ws.writable && !ws.closed) {
+                return endStream(ws)
+            }
+            return ws
+        })
+}
+
+/**
+ * Open the file for writing and create a write stream.
+ * @param {string} ffile path to the file
+ * @returns {Promise<Writable>} A promise with the stream
+ */
+function wrote(file) {
+    const _file = (typeof file).toLowerCase() === 'string' ?
+        file : getTempFile()
+    return openFileForWrite(_file)
 }
 
 Object.defineProperty(wrote, 'erase', { get: () => erase })

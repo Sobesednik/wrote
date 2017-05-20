@@ -1,20 +1,24 @@
 const assert = require('assert')
-const wrote = require('../src/index')
 const Writable = require('stream').Writable
-const os = require('os')
 const path = require('path')
+const os = require('os')
 const fs = require('fs')
-
-const tempFile = path.join(os.tmpdir(), 'random-file-name')
+const makePromise = require('makepromise')
+const wrote = require('../src/index')
 
 const createTempFilePath = () => {
-    return path.join(os.tmpdir(), `wrote-${Math.floor(Math.random() * 1e3)}.data`)
+    return path.join(os.tmpdir(), `wrote-test-${Math.floor(Math.random() * 1e3)}.data`)
 }
 
+function Context() {
+    Object.defineProperties(this, {
+        tempFile: {
+            get: () => createTempFilePath(),
+        },
+    })
+}
 const wroteTestSuite = {
-    context: {
-        createTempFilePath,
-    },
+    context: Context,
     'should be a function': () => {
         assert(typeof wrote === 'function')
     },
@@ -30,15 +34,17 @@ const wroteTestSuite = {
             })
         return res
     },
-    'should open specified file': () => {
-        return wrote(tempFile)
+    'should open specified file': (ctx) => {
+        const file = ctx.tempFile
+        return wrote(file)
             .then((ws) => {
-                assert(ws instanceof Writable)
-                assert.equal(ws.path, tempFile)
+                assert.equal(ws.path, file)
+                assert(ws instanceof Writable && ws.writable)
             })
     },
-    'should stop': () => {
-        return wrote(tempFile)
+    'should be able to stop stream': (ctx) => {
+        const file = ctx.tempFile
+        return wrote(file)
             .then((ws) => {
                 const promise = new Promise((resolve, reject) => {
                     ws.once('close', () => resolve(ws))
@@ -48,52 +54,68 @@ const wroteTestSuite = {
                 return promise
             })
     },
-    'should erase passed file': (ctx) => {
-        const filepath = ctx.createTempFilePath()
-        return wrote(filepath)
-            .then((ws) => {
-                return wrote.erase(ws)
-            })
-            .then((ws) => {
-                assert(!ws.writable)
-                assert.equal(ws.path, filepath)
-                return new Promise((resolve, reject) => {
-                    fs.stat(ws.path, (err, stats) => {
-                        if (err) return reject(err)
-                        return resolve(stats)
-                    })
-                })
-            })
-            .then(() => {
-                throw new Error('should have been rejected')
-            }, (err) => {
-                assert(/^ENOENT: no such file or directory/.test(err.message))
-            })
-    },
-    'should erase temp file': () => {
-        let filepath
-        return wrote()
-            .then((ws) => {
-                filepath = ws.path
-                return wrote.erase(ws)
-            })
-            .then((ws) => {
-                assert(!ws.writable)
-                assert.equal(ws.path, filepath)
-                return new Promise((resolve, reject) => {
-                    fs.stat(ws.path, (err, stats) => {
-                        if (err) return reject(err)
-                        return resolve(stats)
-                    })
-                })
-            })
-            .then(() => {
-                throw new Error('should have been rejected')
-            }, (err) => {
-                assert(/^ENOENT: no such file or directory/.test(err.message))
-            })
-    }
 }
 
+function assertFileDoesNotExist(filepath) {
+    return makePromise(fs.stat, filepath)
+        .then(() => {
+            throw new Error('should have been rejected')
+        }, (err) => {
+            assert(/^ENOENT: no such file or directory/.test(err.message))
+        })
+}
 
-module.exports = wroteTestSuite
+function assertFileExists(filepath) {
+    return makePromise(fs.stat, filepath)
+}
+
+const eraseTestSuite = {
+    context: Context,
+    'should erase passed file': (ctx) => {
+        const file = ctx.tempFile
+        return wrote(file)
+            .then((ws) => {
+                return wrote.erase(ws)
+            })
+            .then((ws) => {
+                assert(!ws.writable)
+                assert.equal(ws.path, file)
+            })
+            .then(() => assertFileDoesNotExist(file))
+    },
+    'should erase temp file': () => {
+        'use strict'
+        let file
+        return wrote()
+            .then((ws) => {
+                file = ws.path
+                return wrote.erase(ws)
+            })
+            .then((ws) => {
+                assert(!ws.writable)
+                assert.equal(ws.path, file)
+            })
+            .then(() => assertFileDoesNotExist(file))
+    },
+    'should erase file even if stream is closed': (ctx) => {
+        const file = ctx.tempFile
+        let writeStream
+        return wrote(file)
+            .then((ws) => {
+                writeStream = ws
+                return makePromise(writeStream.end.bind(writeStream))
+            })
+            .then(() => {
+                assert(!writeStream.writable) // ended writable stream
+                assert.equal(writeStream.path, file)
+            })
+            .then(() => assertFileExists(file))
+            .then(() => wrote.erase(writeStream))
+            .then(() => assertFileDoesNotExist(file))
+    },
+}
+
+module.exports = {
+    wroteTestSuite,
+    eraseTestSuite,
+}

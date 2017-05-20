@@ -25,5 +25,8 @@
   "homepage": "https://github.com/Sobesednik/wrote#readme",
   "devDependencies": {
     "zoroaster": "0.4.4"
+  },
+  "dependencies": {
+    "makepromise": "^1.0.0"
   }
 }

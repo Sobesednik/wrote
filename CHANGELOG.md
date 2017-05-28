@@ -1,3 +1,7 @@
+## 0.4.0 (28 May 2017)
+
+* [feature] `write.ensurePath`: make sure all directories in the path exist
+
 ## 0.3.0 (28 May 2017)
 
 * [feature] `wrote.write`: write to the stream and return a promise resolved when the stream

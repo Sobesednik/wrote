@@ -1,12 +1,12 @@
 const Writable = require('stream').Writable
 const path = require('path')
-const wrote = require('./')
+const wrote = require('../')
+
 const HOME_DIR = require('os').homedir()
-const fs = require('fs')
 
 const file = path.join(HOME_DIR, `wrote-${Math.floor(Math.random() * 1e5)}.data`)
 
-return wrote(file)
+wrote(file)
     .then((ws) => {
         console.log(ws instanceof Writable) // true
         console.log(ws.writable) // true

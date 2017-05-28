@@ -95,6 +95,29 @@ wrote.write(ws, buffer)
     .catch(console.error)
 ```
 
+## wrote.ensurePath(filePath:string) => Promise<string>
+
+Create all required directories for the filepath to exist. If a directory on the way is
+non-executable, the promise will be rejected. Resolves with the filepath.
+
+```js
+const wrote = require('wrote')
+const tempPath = 'path/to/temp/file.data'
+const path = require('path')
+
+wrote.ensurePath(tempPath)
+    .then((res) => {
+        console.log(res) // path/to/temp/file.data, path/to/temp is created in your cwd
+    })
+    .then(() => {
+        const absolutePath = path.join(process.cwd(), tempPath)
+        return wrote.ensurePath(absolutePath)
+    })
+    .then((res) => {
+        console.log(res) // $(pwd)/path/to/temp/file.data, using previously created path
+    })
+```
+
 ## todo
 
 - pass options to `fs.createWriteStream`

@@ -5,6 +5,7 @@ const Readable = require('stream').Readable
 const Writable = require('stream').Writable
 const makePromise = require('makepromise')
 const TEMP_DIR = os.tmpdir()
+const ensurePath = require('./ensure-path')
 
 function openFileForWrite(filepath) {
     return new Promise((resolve, reject) => {
@@ -91,6 +92,7 @@ function write(ws, source) {
     return makePromise(ws.end.bind(ws), source, ws)
 }
 
+Object.defineProperty(wrote, 'ensurePath', { get: () => ensurePath })
 Object.defineProperty(wrote, 'write', { get: () => write })
 Object.defineProperty(wrote, 'erase', { get: () => erase })
 

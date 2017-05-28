@@ -1,6 +1,7 @@
 ## 0.3.0 (28 May 2017)
 
-* [feature] `write`: write to the stream and return a promise resolved when the stream closes.
+* [feature] `wrote.write`: write to the stream and return a promise resolved when the stream
+finishes.
 
 ## 0.2.0 (20 May 2017)
 

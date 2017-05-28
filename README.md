@@ -66,6 +66,35 @@ return wrote(file)
     .catch(console.error)
 ```
 
+## wrote.write(ws:Writable, data:any|Readable) => Promise<Writable>
+
+Pipe a `Readable` to the `Writable` stream and wait until it is finished, or end `Writable` with
+given data (pass `null` to end stream without any more data).
+
+```js
+const wrote = require('wrote')
+const assert = require('assert')
+const Writable = require('stream').Writable
+
+const testString = 'hello world'
+const buffer = Buffer.from(testString)
+const allRawData = []
+const ws = new Writable({
+    write: (chunk, encoding, next) => {
+        allRawData.push(chunk)
+        next()
+    },
+})
+wrote.write(ws, buffer)
+    .then(() => {
+        console.log(allRawData.map(d => String(d))) // [ 'hello world' ]
+        assert.deepEqual(allRawData, [
+            buffer,
+        ])
+    })
+    .catch(console.error)
+```
+
 ## todo
 
 - pass options to `fs.createWriteStream`

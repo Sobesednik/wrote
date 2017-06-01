@@ -1,3 +1,4 @@
+'use strict'
 const assert = require('assert')
 const Catchment = require('catchment')
 const fs = require('fs')
@@ -7,8 +8,9 @@ const path = require('path')
 const spawnCommand = require('spawncommand')
 const wrote = require('../../src/')
 
+const TEST_NAME = `wrote-test-${Math.floor(Math.random() * 1e5)}.data`
 const createTempFilePath = () => {
-    return path.join(os.tmpdir(), `wrote-test-${Math.floor(Math.random() * 1e3)}.data`)
+    return path.join(os.tmpdir(), TEST_NAME)
 }
 
 function assertFileDoesNotExist(filepath) {
@@ -44,9 +46,29 @@ const TEMP_TEST_DIR = path.join(TEMP_DIR, TEST_DIR_NAME)
 const TEMP_NOX_DIR = path.join(TEMP_DIR, TEST_DIR_NOX_NAME)
 
 function WroteContext() {
+    Object.assign(this, {
+        TEST_DATA: 'some test data for temp file',
+        TEST_NAME,
+    })
+    let tempFileWs
     Object.defineProperties(this, {
         tempFile: {
-            get: () => createTempFilePath(),
+            get: () => {
+                return this._tempFile || createTempFilePath()
+            },
+        },
+        createTempFileWithData: {
+            value: () => {
+                const tempFile = createTempFilePath()
+                return wrote(tempFile)
+                    .then((ws) => {
+                        tempFileWs = ws
+                        return wrote.write(ws, this.TEST_DATA)
+                    })
+                    .then(() => {
+                        this._tempFile = tempFile
+                    })
+            },
         },
         assertFileDoesNotExist: {
             get: () => assertFileDoesNotExist,
@@ -100,6 +122,11 @@ function WroteContext() {
                 const pc2 = spawnCommand('rm', ['-rf', this._TEMP_NOX_DIR])
                 promises.push(pc2.promise)
             }
+            if (tempFileWs) {
+                const promise = wrote.erase(tempFileWs)
+                promises.push(promise)
+            }
+            // remove temp file
             return Promise.all(promises)
         }},
     })

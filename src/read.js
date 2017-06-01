@@ -8,14 +8,18 @@ const Catchment = require('catchment')
  * file not found.
  */
 function read(filePath) {
-    const rs = fs.createReadStream(filePath)
-    return new Promise((resolve, reject) => {
-        rs.on('error', reject)
-        const catchment = new Catchment()
-        rs.pipe(catchment)
-        return catchment.promise
-            .then(resolve)
-    })
+    try {
+        const rs = fs.createReadStream(filePath)
+        return new Promise((resolve, reject) => {
+            rs.on('error', reject)
+            const catchment = new Catchment()
+            rs.pipe(catchment)
+            return catchment.promise
+                .then(resolve)
+        })
+    } catch (err) {
+        return Promise.reject(err)
+    }
 }
 
 module.exports = read

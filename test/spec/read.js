@@ -13,7 +13,7 @@ const readTestSuite = {
                 assert.equal(res, ctx.TEST_DATA)
             })
     },
-    'should throw an error if file not found': () => {
+    'should reject if file not found': () => {
         const filename = `${Math.floor(Math.random() * 1e5)}.data`
         return read(filename)
             .then(() => {
@@ -22,6 +22,14 @@ const readTestSuite = {
                 if (/ENOENT/.test(err.message)) {
                     assert(err.message.indexOf(filename) !== -1)
                 }
+            })
+    },
+    'should reject if path is not a string': () => {
+        return read()
+            .then(() => {
+                throw new Error('should have been rejected')
+            }, (err) => {
+                assert(err.message.indexOf('path must be a string') !== -1)
             })
     },
 }

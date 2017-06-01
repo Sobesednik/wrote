@@ -22,6 +22,10 @@ function assertFileDoesNotExist(filepath) {
         })
 }
 
+function assertFileExists(filepath) {
+    return makePromise(fs.stat, filepath)
+}
+
 function assertCanWriteFile(filePath) {
     const testData = `some-test-data-${Date.now()}`
     return wrote(filePath)
@@ -72,6 +76,9 @@ function WroteContext() {
         },
         assertFileDoesNotExist: {
             get: () => assertFileDoesNotExist,
+        },
+        assertFileExists: {
+            get: () => assertFileExists,
         },
         assertCanWriteFile: {
             get: () => assertCanWriteFile,

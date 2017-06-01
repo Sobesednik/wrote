@@ -1,3 +1,7 @@
+## 0.5.0 (2 Jun 2017)
+
+* [feature] `write.read`: read whole file
+
 ## 0.4.0 (28 May 2017)
 
 * [feature] `write.ensurePath`: make sure all directories in the path exist

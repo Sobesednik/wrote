@@ -1,13 +1,13 @@
 const assert = require('assert')
 const path = require('path')
-const wrote = require('../../')
+const ensurePath = require('../../src/ensure-path')
 const context = require('../context/WroteContext')
 
 const ensurePathTestSuite = {
     context,
     'should create a path to the file': (ctx) => {
         const tempPath = path.join(ctx.TEMP_TEST_DIR, 'path/to/temp/file.data')
-        return wrote.ensurePath(tempPath)
+        return ensurePath(tempPath)
             .then((res) => {
                 assert.equal(res, tempPath)
                 return ctx.assertCanWriteFile(tempPath)
@@ -17,7 +17,7 @@ const ensurePathTestSuite = {
         return ctx.makeNoExecutableDirectory()
             .then(() => {
                 const tempPath = path.join(ctx.TEMP_NOX_DIR, 'path/to/temp/file.data')
-                return wrote.ensurePath(tempPath)
+                return ensurePath(tempPath)
             })
             .then(() => {
                 throw new Error('should have thrown an error')
@@ -30,7 +30,7 @@ const ensurePathTestSuite = {
     },
     'should not throw an error when dir already exists': (ctx) => {
         const tempPath = path.join(ctx.TEMP_TEST_DIR, 'file.data')
-        return wrote.ensurePath(tempPath)
+        return ensurePath(tempPath)
             .then((res) => {
                 assert.equal(res, tempPath)
                 return ctx.assertCanWriteFile(tempPath)

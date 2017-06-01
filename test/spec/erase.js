@@ -1,14 +1,10 @@
 'use strict'
 
 const assert = require('assert')
-const fs = require('fs')
 const makePromise = require('makepromise')
-const wrote = require('../../src/index')
+const erase = require('../../src/erase')
+const wrote = require('../../src/wrote')
 const WroteContext = require('../context/WroteContext')
-
-function assertFileExists(filepath) {
-    return makePromise(fs.stat, filepath)
-}
 
 const eraseTestSuite = {
     context: WroteContext,
@@ -16,7 +12,7 @@ const eraseTestSuite = {
         const file = ctx.tempFile
         return wrote(file)
             .then((ws) => {
-                return wrote.erase(ws)
+                return erase(ws)
             })
             .then((ws) => {
                 assert(ws.closed) // if node 6+, assert writable == false
@@ -32,7 +28,7 @@ const eraseTestSuite = {
             .then((ws) => {
                 writeStream = ws
                 file = writeStream.path
-                return wrote.erase(writeStream)
+                return erase(writeStream)
             })
             .then(() => {
                 assert(writeStream.closed)
@@ -52,8 +48,8 @@ const eraseTestSuite = {
                 assert(writeStream.closed)
                 assert.equal(writeStream.path, file)
             })
-            .then(() => assertFileExists(file))
-            .then(() => wrote.erase(writeStream))
+            .then(() => ctx.assertFileExists(file))
+            .then(() => erase(writeStream))
             .then(() => ctx.assertFileDoesNotExist(file))
     },
 }

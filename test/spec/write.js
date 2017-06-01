@@ -2,7 +2,7 @@ const Readable = require('stream').Readable
 const Writable = require('stream').Writable
 const assert = require('assert')
 const Catchment = require('catchment')
-const wrote = require('../../src/')
+const write = require('../../src/write')
 
 function createWs(nextArg) {
     const allData = []
@@ -21,7 +21,7 @@ const writeTestSuite = {
     'should write a string to the stream': () => {
         const testString = 'hello world'
         const ws = createWs()
-        return wrote.write(ws.ws, testString)
+        return write(ws.ws, testString)
             .then(() => {
                 assert.deepEqual(ws.allData, [
                     testString,
@@ -38,7 +38,7 @@ const writeTestSuite = {
                 rs.push(null)
             },
         })
-        return wrote.write(ws.ws, rs)
+        return write(ws.ws, rs)
             .then((res) => {
                 assert.deepEqual(ws.allData, [
                     testString,
@@ -60,7 +60,7 @@ const writeTestSuite = {
         rs.pipe(catchment)
         return catchment.promise
             .then(() => {
-                return wrote.write(ws.ws, rs)
+                return write(ws.ws, rs)
             })
             .then(() => {
                 throw new Error('Should have been rejected')
@@ -79,7 +79,7 @@ const writeTestSuite = {
                 return
             },
         })
-        return wrote.write(ws.ws, rs)
+        return write(ws.ws, rs)
             .then(() => {
                 throw new Error('Should have been rejected')
             }, (err) => {
@@ -96,7 +96,7 @@ const writeTestSuite = {
                 rs.push(null)
             },
         })
-        return wrote.write(ws.ws, rs)
+        return write(ws.ws, rs)
             .then(() => {
                 throw new Error('Should have been rejected')
             }, (err) => {
@@ -105,7 +105,7 @@ const writeTestSuite = {
     },
     'should write nothing when null given': () => {
         const ws = createWs()
-        return wrote.write(ws.ws, null)
+        return write(ws.ws, null)
             .then(() => {
                 assert.deepEqual(ws.allData, [])
                 assert(!ws.writable)
@@ -115,7 +115,7 @@ const writeTestSuite = {
         const testString = 'hello world'
         const buffer = Buffer.from(testString)
         const ws = createWs()
-        return wrote.write(ws.ws, buffer)
+        return write(ws.ws, buffer)
             .then(() => {
                 assert.deepEqual(ws.allRawData, [
                     buffer,
@@ -124,7 +124,7 @@ const writeTestSuite = {
             })
     },
     'should reject if writable is not Writable': () => {
-        return wrote.write('string')
+        return write('string')
             .then(() => {
                 throw new Error('Should have been rejected')
             }, (err) => {

@@ -118,6 +118,25 @@ wrote.ensurePath(tempPath)
     })
 ```
 
+## wrote.read(filePath:string) => Promise<string>
+
+Read a file fully. Returns a promise resolved with the file contents, and
+rejects if path is not a string or file not found (`ENOENT`).
+
+```js
+const assert = require('assert')
+const wrote = require('wrote')
+
+wrote.read(__filename)
+    .then((res) => {
+        console.log(res)
+        assert(res.startsWith("const assert = require('assert')"))
+    })
+    .catch(console.error)
+```
+
+`examples/read.js`: _this program will print the contents of itself_
+
 ## todo
 
 - pass options to `fs.createWriteStream`

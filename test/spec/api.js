@@ -3,6 +3,7 @@ const ensurePath = require('../../src/ensure-path')
 const erase = require('../../src/erase')
 const wrote = require('../../src/index')
 const read = require('../../src/read')
+const readDir = require('../../src/read-dir')
 const write = require('../../src/write')
 const api = require('../../')
 
@@ -21,6 +22,9 @@ const apiTestSuite = {
     },
     '0.5.0 should export read': () => {
         assert.strictEqual(api.read, read)
+    },
+    '0.6.0 should export readDir': () => {
+        assert.strictEqual(api.readDir, readDir)
     },
 }
 

@@ -1,3 +1,7 @@
+## 0.6.0 (11 June 2017)
+
+* [feature] `write.readDir`: read directory as an object (possibly recursively)
+
 ## 0.5.0 (2 Jun 2017)
 
 * [feature] `write.read`: read whole file

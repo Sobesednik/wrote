@@ -8,6 +8,9 @@ const path = require('path')
 const spawnCommand = require('spawncommand')
 const wrote = require('../../src/')
 
+const FIXTURES_DIR = path.join(__dirname, '../fixtures/')
+const FIXTURES_TEST_DIR = path.join(FIXTURES_DIR, 'directory')
+
 const TEST_NAME = `wrote-test-${Math.floor(Math.random() * 1e5)}.data`
 const createTempFilePath = () => {
     return path.join(os.tmpdir(), TEST_NAME)
@@ -51,8 +54,8 @@ const TEMP_NOX_DIR = path.join(TEMP_DIR, TEST_DIR_NOX_NAME)
 
 function WroteContext() {
     Object.assign(this, {
-        TEST_DATA: 'some test data for temp file',
         TEST_NAME,
+        TEST_DATA: 'some test data for temp file',
     })
     let tempFileWs
     Object.defineProperties(this, {
@@ -84,6 +87,12 @@ function WroteContext() {
             get: () => assertCanWriteFile,
         },
         TEMP_DIR: {
+            get: () => TEMP_DIR,
+        },
+        FIXTURES_TEST_DIR: {
+            get: () => FIXTURES_TEST_DIR,
+        },
+        READ_DIR: {
             get: () => TEMP_DIR,
         },
         TEMP_TEST_DIR: {
@@ -139,7 +148,11 @@ function WroteContext() {
     })
 
     // always make temp dir available
-    return makePromise(fs.mkdir, [TEMP_TEST_DIR, 0o777])
+    const pc = spawnCommand('rm', ['-rf', TEMP_TEST_DIR])
+    return pc.promise
+        .then(() => {
+            return makePromise(fs.mkdir, [TEMP_TEST_DIR, 0o777])
+        })
         .then(() => {
             this._TEMP_TEST_DIR = TEMP_TEST_DIR
         })
@@ -148,6 +161,7 @@ function WroteContext() {
                 throw new Error('WroteContext: Could not make temp test '
                     + 'directory: it already exists')
             }
+            throw err
         })
 }
 

@@ -2,9 +2,9 @@
 
 [![npm version](https://badge.fury.io/js/wrote.svg)](https://badge.fury.io/js/wrote)
 
-Promise-based write for Node.js
+Promise-based write and read operations for Node.js
 
-## `wrote(filepath?:String) => Promise<Writable> (ws.writable == true)`
+## `wrote(filepath?:String) => Promise<Writable>`
 
 Create a write stream to your file without hastle.
 
@@ -39,7 +39,7 @@ return wrote()
     .catch(console.error)
 ```
 
-## `wrote.erase(ws:Writable) => Promise<Writable> (ws.writable == false)`
+## `wrote.erase(ws:Writable) => Promise<Writable>`
 
 Erase file and close stream.
 
@@ -66,7 +66,7 @@ return wrote(file)
     .catch(console.error)
 ```
 
-## wrote.write(ws:Writable, data:any|Readable) => Promise<Writable>
+## `wrote.write(ws:Writable, data:any|Readable) => Promise<Writable>`
 
 Pipe a `Readable` to the `Writable` stream and wait until it is finished, or end `Writable` with
 given data (pass `null` to end stream without any more data).
@@ -95,7 +95,7 @@ wrote.write(ws, buffer)
     .catch(console.error)
 ```
 
-## wrote.ensurePath(filePath:string) => Promise<string>
+## `wrote.ensurePath(filePath:string) => Promise<string>`
 
 Create all required directories for the filepath to exist. If a directory on the way is
 non-executable, the promise will be rejected. Resolves with the filepath.
@@ -118,7 +118,7 @@ wrote.ensurePath(tempPath)
     })
 ```
 
-## wrote.read(filePath:string) => Promise<string>
+## `wrote.read(filePath:string) => Promise<string>`
 
 Read a file fully. Returns a promise resolved with the file contents, and
 rejects if path is not a string or file not found (`ENOENT`).
@@ -136,6 +136,55 @@ wrote.read(__filename)
 ```
 
 `examples/read.js`: _this program will print the contents of itself_
+
+## `wrote.readDir(dirPath:string, recursive?:boolean) => Promise<object>`
+
+Read a directory, and return contents of contained files.
+
+For example, the following directory structure:
+
+```fs
+directory
+ - subdirectory
+    - subdirFileA.txt
+    ` subdirFileB.txt
+ - fileA.txt
+ - fileB.txt
+ ` fileC.txt
+```
+
+can be read either shallowly (by default):
+
+```js
+const wrote = require('../')
+
+wrote.readDir('directory')
+    .then((res) => {
+        console.log(res)
+        // { 'fileA.txt': 'fileA\n',
+        //   'fileB.txt': 'fileB\n',
+        //   'fileC.txt': 'fileC\n' }
+    })
+    .catch(console.error)
+```
+
+or recursively:
+
+```js
+const wrote = require('../')
+
+wrote.readDir('directory', true)
+    .then((res) => {
+        console.log(res)
+        // { 'fileA.txt': 'fileA\n',
+        //   'fileB.txt': 'fileB\n',
+        //   'fileC.txt': 'fileC\n',
+        //   subdirectory:
+        //    { 'subdirFileA.txt': 'subdirFileA\n',
+        //      'subdirFileB.txt': 'subdirFileB\n' } }
+    })
+    .catch(console.error)
+```
 
 ## todo
 

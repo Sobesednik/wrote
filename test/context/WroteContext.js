@@ -64,6 +64,11 @@ function WroteContext() {
                 return this._tempFile || createTempFilePath()
             },
         },
+        fixturesStructure: {
+            get: () => {
+                return this._fixturesStructure
+            },
+        },
         createTempFileWithData: {
             value: () => {
                 const tempFile = createTempFilePath()
@@ -130,7 +135,7 @@ function WroteContext() {
         },
         _destroy: { value: () => {
             const promises = []
-            if (this._TEMP_TEST_DIR) {
+            if (this._TEMP_TEST_DIR && !process.env.KEEP_TEMP) {
                 const pc = spawnCommand('rm', ['-rf', this._TEMP_TEST_DIR])
                 promises.push(pc.promise)
             }
@@ -149,7 +154,7 @@ function WroteContext() {
 
     // always make temp dir available
     const pc = spawnCommand('rm', ['-rf', TEMP_TEST_DIR])
-    return pc.promise
+    const p1 = pc.promise
         .then(() => {
             return makePromise(fs.mkdir, [TEMP_TEST_DIR, 0o777])
         })
@@ -163,6 +168,11 @@ function WroteContext() {
             }
             throw err
         })
+    const p2 = wrote.readDirStructure(this.FIXTURES_TEST_DIR)
+        .then((res) => {
+            this._fixturesStructure = res
+        })
+    return Promise.all([p1, p2])
 }
 
 module.exports = WroteContext

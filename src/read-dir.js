@@ -1,23 +1,8 @@
 'use strict'
 const fs = require('fs')
 const makePromise = require('makepromise')
-const path = require('path')
 const read = require('./read')
-
-function lstatFiles(dirPath, dirContent) {
-    const readFiles = dirContent.map((fileOrDir) => {
-        const newPath = path.join(dirPath, fileOrDir)
-        return makePromise(fs.lstat, newPath)
-            .then((lstat) => {
-                return {
-                    lstat,
-                    path: newPath,
-                    relativePath: fileOrDir,
-                }
-            })
-    })
-    return Promise.all(readFiles)
-}
+const lib = require('./lib/')
 
 /**
  * Filter lstat results, taking only files if recursive is false.
@@ -26,8 +11,11 @@ function lstatFiles(dirPath, dirContent) {
  * @returns {lstat[]} Filtered array.
  */
 function filterFiles(files, recursive) {
+    const fileOrDir = (lstat) => {
+        return lstat.isFile() || lstat.isDirectory()
+    }
     return files.filter((file) => {
-        return recursive ? true : file.lstat.isFile()
+        return recursive ? fileOrDir(file.lstat) : file.lstat.isFile()
     })
 }
 
@@ -41,7 +29,7 @@ function filterFiles(files, recursive) {
 function readDir(dirPath, recursive) {
     return makePromise(fs.readdir, [dirPath])
         .then((res) => {
-            return lstatFiles(dirPath, res)
+            return lib.lstatFiles(dirPath, res)
         })
         .then((lstatRes) => {
             const filteredFiles = filterFiles(lstatRes, recursive)

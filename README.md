@@ -186,6 +186,77 @@ wrote.readDir('directory', true)
     .catch(console.error)
 ```
 
+## `wrote.readDirStructure(dirPath:string) => Promise<string|object[]>`
+
+Get the full structure of the directory recursively. An array of either
+file names as strings, or an object representing all directories of the
+current one, with keys being their names, and values being arrays similar
+to the root one.
+
+```js
+const wrote = require('wrote')
+const path = require('path')
+
+const dirPath = path.join(__dirname, 'directory')
+
+wrote.readDirStructure(dirPath)
+    .then((res) => {
+        console.log(res)
+        // [ 'fileA.txt',
+        //   'fileB.txt',
+        //   'fileC.txt',
+        //   { subdirectory: [
+        //      'subdirFileA.txt',
+        //      'subdirFileB.txt'
+        //     ],
+        //     subdirectory2: [
+        //      'foo.txt',
+        //      'bar.txt'
+        //     ]
+        //   }
+        // ]
+    })
+    .catch(console.error)
+```
+
+## `wrote.rsync(from:string, to:string, args:string?) => Promise<object>`
+
+Run `rsync` to clone directory.
+
+```js
+const wrote = require('wrote')
+const path = require('path')
+
+const dirPath = path.join(__dirname, 'directory')
+const outputPath = path.join(__dirname, 'cloned-dir')
+
+wrote.rsync(dirPath, outputPath)
+    .then((res) => {
+        // console.log(res)
+        // { 'fileA.txt': 'fileA\n',
+        //   'fileB.txt': 'fileB\n',
+        //   'fileC.txt': 'fileC\n' }
+    })
+    .catch(console.error)
+```
+
+## `wrote.rmrf(dirPath:string) => Promise<String>`
+
+Remove directory with `rm -rf`.
+
+```js
+const wrote = require('wrote')
+const path = require('path')
+
+const dirPath = path.join(__dirname, 'directory')
+
+wrote.rmrf(dirPath)
+    .then((res) => {
+        console.log(res) // ~/directory
+    })
+    .catch(console.error)
+```
+
 ## todo
 
 - pass options to `fs.createWriteStream`

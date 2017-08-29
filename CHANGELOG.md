@@ -1,3 +1,7 @@
+## 0.6.1 (29 Aug 2017)
+
+* [bufgix] install `catchment` as dependency for `read`.
+
 ## 0.6.0 (11 June 2017)
 
 * [feature] `write.readDir`: read directory as an object (possibly recursively)

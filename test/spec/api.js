@@ -5,6 +5,8 @@ const wrote = require('../../src/index')
 const read = require('../../src/read')
 const readDir = require('../../src/read-dir')
 const write = require('../../src/write')
+// const rsync = require('../../src/rsync')
+const readDirStructure = require('../../src/read-dir-structure')
 const api = require('../../')
 
 const apiTestSuite = {
@@ -25,6 +27,10 @@ const apiTestSuite = {
     },
     '0.6.0 should export readDir': () => {
         assert.strictEqual(api.readDir, readDir)
+    },
+    '0.7.0 should export readDirStructure': () => {
+        assert.strictEqual(api.readDirStructure, readDirStructure)
+        // assert.strictEqual(api.rmrf, rmrf)
     },
 }
 

@@ -26,8 +26,11 @@ function lstatFiles(dirPath, dirContent) {
  * @returns {lstat[]} Filtered array.
  */
 function filterFiles(files, recursive) {
+    const fileOrDir = (lstat) => {
+        return lstat.isFile() || lstat.isDirectory()
+    }
     return files.filter((file) => {
-        return recursive ? true : file.lstat.isFile()
+        return recursive ? fileOrDir(file.lstat) : file.lstat.isFile()
     })
 }
 

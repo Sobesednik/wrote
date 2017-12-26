@@ -7,9 +7,11 @@ const os = require('os')
 const path = require('path')
 const spawnCommand = require('spawncommand')
 const wrote = require('../../src/')
+const fixturesStructure = require('../fixtures/expected/read-dir-structure')
 
 const FIXTURES_DIR = path.join(__dirname, '../fixtures/')
 const FIXTURES_TEST_DIR = path.join(FIXTURES_DIR, 'directory')
+const FIXTURES_TEST_DIR_SOFT_LINK = path.join(FIXTURES_DIR, 'directory-ln')
 
 const TEST_NAME = `wrote-test-${Math.floor(Math.random() * 1e5)}.data`
 const createTempFilePath = () => {
@@ -64,6 +66,9 @@ function WroteContext() {
                 return this._tempFile || createTempFilePath()
             },
         },
+        expectedFixturesStructure: {
+            get: () => fixturesStructure,
+        },
         createTempFileWithData: {
             value: () => {
                 const tempFile = createTempFilePath()
@@ -91,6 +96,9 @@ function WroteContext() {
         },
         FIXTURES_TEST_DIR: {
             get: () => FIXTURES_TEST_DIR,
+        },
+        FIXTURES_TEST_DIR_SOFT_LINK: {
+            get: () => FIXTURES_TEST_DIR_SOFT_LINK,
         },
         READ_DIR: {
             get: () => TEMP_DIR,
@@ -130,7 +138,7 @@ function WroteContext() {
         },
         _destroy: { value: () => {
             const promises = []
-            if (this._TEMP_TEST_DIR) {
+            if (this._TEMP_TEST_DIR && !process.env.KEEP_TEMP) {
                 const pc = spawnCommand('rm', ['-rf', this._TEMP_TEST_DIR])
                 promises.push(pc.promise)
             }
@@ -149,7 +157,7 @@ function WroteContext() {
 
     // always make temp dir available
     const pc = spawnCommand('rm', ['-rf', TEMP_TEST_DIR])
-    return pc.promise
+    const p1 = pc.promise
         .then(() => {
             return makePromise(fs.mkdir, [TEMP_TEST_DIR, 0o777])
         })
@@ -163,6 +171,7 @@ function WroteContext() {
             }
             throw err
         })
+    return Promise.all([p1])
 }
 
 module.exports = WroteContext

@@ -1,55 +1,106 @@
-'use strict';
-
 var assert = require('assert');
 var makePromise = require('makepromise');
 var erase = require('../../src/erase');
 var wrote = require('../../src/wrote');
-var WroteContext = require('../context/WroteContext');
+var context = require('../context/WroteContext');
 
 var eraseTestSuite = {
-    context: WroteContext,
-    'should erase passed file': function shouldErasePassedFile(ctx) {
-        var file = ctx.tempFile;
-        return wrote(file).then(function (ws) {
-            return erase(ws);
-        }).then(function (ws) {
-            assert(ws.closed); // if node 6+, assert writable == false
-            assert.equal(ws.path, file);
-        }).then(function () {
-            return ctx.assertFileDoesNotExist(file);
-        });
+    context,
+    'should close and erase open stream'(_ref) {
+        return new Promise(function ($return, $error) {
+            var tempFile, assertFileDoesNotExist, ws;
+            tempFile = _ref.tempFile, assertFileDoesNotExist = _ref.assertFileDoesNotExist;
+            return Promise.resolve(wrote(tempFile)).then(function ($await_1) {
+                try {
+                    ws = $await_1;
+                    assert(!ws.closed);
+                    return Promise.resolve(erase(ws)).then(function ($await_2) {
+                        try {
+                            assert(ws.closed); // if node 6+, assert writable == false
+                            assert.equal(ws.path, tempFile);
+                            return Promise.resolve(assertFileDoesNotExist(tempFile)).then(function ($await_3) {
+                                try {
+                                    return $return();
+                                } catch ($boundEx) {
+                                    return $error($boundEx);
+                                }
+                            }.bind(this), $error);
+                        } catch ($boundEx) {
+                            return $error($boundEx);
+                        }
+                    }.bind(this), $error);
+                } catch ($boundEx) {
+                    return $error($boundEx);
+                }
+            }.bind(this), $error);
+        }.bind(this));
     },
-    'should erase temp file': function shouldEraseTempFile(ctx) {
-        var file = void 0;
-        var writeStream = void 0;
-
-        return wrote().then(function (ws) {
-            writeStream = ws;
-            file = writeStream.path;
-            return erase(writeStream);
-        }).then(function () {
-            assert(writeStream.closed);
-            assert.equal(writeStream.path, file);
-        }).then(function () {
-            return ctx.assertFileDoesNotExist(file);
-        });
+    'should close and erase temp open stream'(_ref2) {
+        return new Promise(function ($return, $error) {
+            var assertFileDoesNotExist, ws;
+            assertFileDoesNotExist = _ref2.assertFileDoesNotExist;
+            return Promise.resolve(wrote()).then(function ($await_4) {
+                try {
+                    ws = $await_4;
+                    assert(!ws.closed);
+                    return Promise.resolve(erase(ws)).then(function ($await_5) {
+                        try {
+                            assert(ws.closed);
+                            return Promise.resolve(assertFileDoesNotExist(ws.path)).then(function ($await_6) {
+                                try {
+                                    return $return();
+                                } catch ($boundEx) {
+                                    return $error($boundEx);
+                                }
+                            }.bind(this), $error);
+                        } catch ($boundEx) {
+                            return $error($boundEx);
+                        }
+                    }.bind(this), $error);
+                } catch ($boundEx) {
+                    return $error($boundEx);
+                }
+            }.bind(this), $error);
+        }.bind(this));
     },
-    'should erase file even if stream is closed': function shouldEraseFileEvenIfStreamIsClosed(ctx) {
-        var file = ctx.tempFile;
-        var writeStream = void 0;
-        return wrote(file).then(function (ws) {
-            writeStream = ws;
-            return makePromise(writeStream.end.bind(writeStream));
-        }).then(function () {
-            assert(writeStream.closed);
-            assert.equal(writeStream.path, file);
-        }).then(function () {
-            return ctx.assertFileExists(file);
-        }).then(function () {
-            return erase(writeStream);
-        }).then(function () {
-            return ctx.assertFileDoesNotExist(file);
-        });
+    'should erase closed stream'(_ref3) {
+        return new Promise(function ($return, $error) {
+            var tempFile, assertFileExists, assertFileDoesNotExist, ws;
+            tempFile = _ref3.tempFile, assertFileExists = _ref3.assertFileExists, assertFileDoesNotExist = _ref3.assertFileDoesNotExist;
+            return Promise.resolve(wrote(tempFile)).then(function ($await_7) {
+                try {
+                    ws = $await_7;
+                    return Promise.resolve(makePromise(ws.end.bind(ws))).then(function ($await_8) {
+                        try {
+                            assert(ws.closed);
+                            return Promise.resolve(assertFileExists(tempFile)).then(function ($await_9) {
+                                try {
+                                    return Promise.resolve(erase(ws)).then(function ($await_10) {
+                                        try {
+                                            return Promise.resolve(assertFileDoesNotExist(tempFile)).then(function ($await_11) {
+                                                try {
+                                                    return $return();
+                                                } catch ($boundEx) {
+                                                    return $error($boundEx);
+                                                }
+                                            }.bind(this), $error);
+                                        } catch ($boundEx) {
+                                            return $error($boundEx);
+                                        }
+                                    }.bind(this), $error);
+                                } catch ($boundEx) {
+                                    return $error($boundEx);
+                                }
+                            }.bind(this), $error);
+                        } catch ($boundEx) {
+                            return $error($boundEx);
+                        }
+                    }.bind(this), $error);
+                } catch ($boundEx) {
+                    return $error($boundEx);
+                }
+            }.bind(this), $error);
+        }.bind(this));
     }
 };
 

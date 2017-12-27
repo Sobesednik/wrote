@@ -1,5 +1,4 @@
-const Readable = require('stream').Readable
-const Writable = require('stream').Writable
+const { Readable, Writable } = require('stream')
 const assert = require('assert')
 const Catchment = require('catchment')
 const write = require('../../src/write')
@@ -18,38 +17,30 @@ function createWs(nextArg) {
 }
 
 const writeTestSuite = {
-    'should write a string to the stream': () => {
+    async 'should write a string to the stream'() {
         const testString = 'hello world'
-        const ws = createWs()
-        return write(ws.ws, testString)
-            .then(() => {
-                assert.deepEqual(ws.allData, [
-                    testString,
-                ])
-                assert(!ws.writable)
-            })
+        const { ws, allData } = createWs()
+        await write(ws, testString)
+        assert.deepEqual(allData, [testString])
+        assert(!ws.writable)
     },
-    'should pipe a readable to the stream': () => {
+    async 'should pipe a readable to the stream'() {
         const testString = 'hello world'
-        const ws = createWs()
+        const { ws, allData } = createWs()
         const rs = new Readable({
             read: () => {
                 rs.push(testString)
                 rs.push(null)
             },
         })
-        return write(ws.ws, rs)
-            .then((res) => {
-                assert.deepEqual(ws.allData, [
-                    testString,
-                ])
-                assert(res._writableState.ended)
-                assert.strictEqual(res, ws.ws)
-            })
+        const resWs = await write(ws, rs)
+        assert.strictEqual(resWs, ws)
+        assert.deepEqual(allData, [testString])
+        assert(resWs._writableState.ended)
     },
-    'should reject when reabable is not readable': () => {
+    async 'should reject when reabable is not readable'() {
         const testString = 'hello world'
-        const ws = createWs()
+        const { ws } = createWs()
         const rs = new Readable({
             read: () => {
                 rs.push(testString)
@@ -58,80 +49,67 @@ const writeTestSuite = {
         })
         const catchment = new Catchment()
         rs.pipe(catchment)
-        return catchment.promise
-            .then(() => {
-                return write(ws.ws, rs)
-            })
-            .then(() => {
-                throw new Error('Should have been rejected')
-            }, (err) => {
-                if (!/Stream is not readable/.test(err.message)) {
-                    throw err
-                }
-            })
+        await catchment.promise
+        try {
+            await write(ws, rs)
+            throw new Error('Should have been rejected')
+        } catch ({ message }) {
+            assert(/Stream is not readable/.test(message))
+        }
     },
-    'should reject with an error when readable throws': () => {
-        const ws = createWs()
+    async 'should reject when readable throws'() {
+        const { ws } = createWs()
         const error = new Error('test-error')
         const rs = new Readable({
             read() {
                 process.nextTick(() => this.emit('error', error))
-                return
             },
         })
-        return write(ws.ws, rs)
-            .then(() => {
-                throw new Error('Should have been rejected')
-            }, (err) => {
-                assert.strictEqual(err, error)
-            })
+        try {
+            await write(ws, rs)
+            throw new Error('Should have been rejected')
+        } catch (err) {
+            assert.strictEqual(err, error)
+        }
     },
-    'should reject when writable throws': () => {
+    async 'should reject when writable throws'() {
         const testString = 'hello world'
         const error = new Error('test-error')
-        const ws = createWs(error)
+        const { ws } = createWs(error)
         const rs = new Readable({
             read: () => {
                 rs.push(testString)
                 rs.push(null)
             },
         })
-        return write(ws.ws, rs)
-            .then(() => {
-                throw new Error('Should have been rejected')
-            }, (err) => {
-                assert.strictEqual(err, error)
-            })
+        try {
+            await write(ws, rs)
+            throw new Error('Should have been rejected')
+        } catch (err) {
+            assert.strictEqual(err, error)
+        }
     },
-    'should write nothing when null given': () => {
-        const ws = createWs()
-        return write(ws.ws, null)
-            .then(() => {
-                assert.deepEqual(ws.allData, [])
-                assert(!ws.writable)
-            })
+    async 'should write nothing when null given'() {
+        const { ws, allData } = createWs()
+        await write(ws, null)
+        assert.deepEqual(allData, [])
+        assert(!ws.writable)
     },
-    'should write buffer': () => {
+    async 'should write buffer'() {
         const testString = 'hello world'
         const buffer = Buffer.from(testString)
-        const ws = createWs()
-        return write(ws.ws, buffer)
-            .then(() => {
-                assert.deepEqual(ws.allRawData, [
-                    buffer,
-                ])
-                assert(!ws.writable)
-            })
+        const { ws, allRawData } = createWs()
+        await write(ws, buffer)
+        assert.deepEqual(allRawData, [buffer])
+        assert(!ws.writable)
     },
-    'should reject if writable is not Writable': () => {
-        return write('string')
-            .then(() => {
-                throw new Error('Should have been rejected')
-            }, (err) => {
-                if (!/Writable stream expected/.test(err.message)) {
-                    throw err
-                }
-            })
+    async 'should reject if writable is not Writable'() {
+        try {
+            await write('string')
+            throw new Error('Should have been rejected')
+        } catch ({ message }) {
+            assert(/Writable stream expected/.test(message))
+        }
     },
 }
 

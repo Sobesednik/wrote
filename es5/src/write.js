@@ -10,23 +10,35 @@ var makePromise = require('makepromise');
  * when an error occurred while reading or writing.
  */
 function write(ws, source) {
-    if (!(ws instanceof Writable)) {
-        return Promise.reject(new Error('Writable stream expected'));
-    }
-    if (source instanceof Readable) {
-        if (!source.readable) {
-            return Promise.reject(new Error('Stream is not readable'));
+    return new Promise(function ($return, $error) {
+        if (!(ws instanceof Writable)) {
+            return $error(new Error('Writable stream expected'));
         }
-        return new Promise(function (resolve, reject) {
-            ws.on('finish', function () {
-                resolve(ws);
-            });
-            ws.on('error', reject);
-            source.on('error', reject);
-            source.pipe(ws);
-        });
-    }
-    return makePromise(ws.end.bind(ws), source, ws);
+        if (source instanceof Readable) {
+            if (!source.readable) {
+                return $error(new Error('Stream is not readable'));
+            }
+            return Promise.resolve(new Promise(function (resolve, reject) {
+                ws.on('finish', resolve);
+                ws.on('error', reject);
+                source.on('error', reject);
+                source.pipe(ws);
+            })).then(function ($await_2) {
+                try {
+                    return $return(ws);
+                } catch ($boundEx) {
+                    return $error($boundEx);
+                }
+            }.bind(this), $error);
+        }
+        return Promise.resolve(makePromise(ws.end.bind(ws), source)).then(function ($await_3) {
+            try {
+                return $return(ws);
+            } catch ($boundEx) {
+                return $error($boundEx);
+            }
+        }.bind(this), $error);
+    }.bind(this));
 }
 
 module.exports = write;

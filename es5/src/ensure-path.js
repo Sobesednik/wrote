@@ -1,23 +1,49 @@
 var fs = require('fs');
 var makePromise = require('makepromise');
-var path = require('path');
+
+var _require = require('path'),
+    dirname = _require.dirname;
 
 /**
  * Make sure that a file can be created by making all directories to which it belongs
- * @param {string} filePath Path to the file
- * @resolves {filePath} Resolves with given filepath
+ * @param {string} path Path to the file
+ * @resolves {path} Resolves with given filepath
  * @rejects {Error} Rejects when a first folder in the path is non-executable
  */
-function ensurePath(filePath) {
-    var dirname = path.dirname(filePath);
-    return make(dirname).then(function () {
-        return filePath;
-    }).catch(function (err) {
-        if (/EEXIST/.test(err.message) && err.message.indexOf(dirname) != -1) {
-            return filePath;
+
+
+function ensurePath(path) {
+    return new Promise(function ($return, $error) {
+        var dir;
+
+        dir = dirname(path);
+        var $Try_1_Post = function () {
+            try {
+                return $return();
+            } catch ($boundEx) {
+                return $error($boundEx);
+            }
+        }.bind(this);var $Try_1_Catch = function (err) {
+            try {
+                if (/EEXIST/.test(err.message) && err.message.indexOf(dir) != -1) {
+                    return $return(path);
+                }
+                throw err;
+            } catch ($boundEx) {
+                return $error($boundEx);
+            }
+        }.bind(this);try {
+            return Promise.resolve(make(dir)).then(function ($await_4) {
+                try {
+                    return $return(path);
+                } catch ($boundEx) {
+                    return $Try_1_Catch($boundEx);
+                }
+            }.bind(this), $Try_1_Catch);
+        } catch (err) {
+            $Try_1_Catch(err)
         }
-        throw err;
-    });
+    }.bind(this));
 }
 
 /**
@@ -25,24 +51,70 @@ function ensurePath(filePath) {
  * @param {string} dir Path to the directory to be created
  */
 function make(dir) {
-    return makeDir(dir).catch(function (err) {
-        if (/ENOENT/.test(err.message)) {
-            var parentDir = path.dirname(dir);
-            return make(parentDir).then(function () {
-                return make(dir);
-            });
+    return new Promise(function ($return, $error) {
+        var res, parentDir, res2;
+        var $Try_2_Post = function () {
+            try {
+                return $return();
+            } catch ($boundEx) {
+                return $error($boundEx);
+            }
+        }.bind(this);var $Try_2_Catch = function (err) {
+            try {
+                if (/ENOENT/.test(err.message)) {
+                    parentDir = dirname(dir);
+                    return Promise.resolve(make(parentDir)).then(function ($await_5) {
+                        try {
+                            return Promise.resolve(make(dir)).then(function ($await_6) {
+                                try {
+                                    res2 = $await_6;
+                                    return $return(res2);
+                                } catch ($boundEx) {
+                                    return $error($boundEx);
+                                }
+                            }.bind(this), $error);
+                        } catch ($boundEx) {
+                            return $error($boundEx);
+                        }
+                    }.bind(this), $error);
+                }
+                throw err;
+            } catch ($boundEx) {
+                return $error($boundEx);
+            }
+        }.bind(this);
+        try {
+            return Promise.resolve(makeDir(dir)).then(function ($await_7) {
+                try {
+                    res = $await_7;
+                    return $return(res);
+                } catch ($boundEx) {
+                    return $Try_2_Catch($boundEx);
+                }
+            }.bind(this), $Try_2_Catch);
+        } catch (err) {
+            $Try_2_Catch(err)
         }
-        throw err;
-    });
+    }.bind(this));
 }
 
 /**
  * Promisified fs.mkdir
  * @param {string} dir directory name
- * @resolves {string} created directory name
+ * @returns {string} created directory name
  */
 function makeDir(dir) {
-    return makePromise(fs.mkdir, dir, dir);
+    return new Promise(function ($return, $error) {
+        var res;
+        return Promise.resolve(makePromise(fs.mkdir, dir, dir)).then(function ($await_8) {
+            try {
+                res = $await_8;
+                return $return(res);
+            } catch ($boundEx) {
+                return $error($boundEx);
+            }
+        }.bind(this), $error);
+    }.bind(this));
 }
 
 module.exports = ensurePath;

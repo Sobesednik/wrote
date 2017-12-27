@@ -1,4 +1,4 @@
-const path = require('path')
+const { join, resolve } = require('path')
 const fs = require('fs')
 const makePromise = require('makepromise')
 
@@ -16,17 +16,15 @@ const makePromise = require('makepromise')
  * @param {string[]} dirContent
  * @returns {File[]} An array with file objects.
  */
-function lstatFiles(dirPath, dirContent) {
-    const readFiles = dirContent.map((item) => {
-        const fullPath = path.join(dirPath, item)
-        return makePromise(fs.lstat, fullPath)
-            .then((lstat) => {
-                return {
-                    lstat,
-                    path: fullPath,
-                    relativePath: item,
-                }
-            })
+async function lstatFiles(dirPath, dirContent) {
+    const readFiles = dirContent.map(async (relativePath) => {
+        const path = resolve(dirPath, relativePath)
+        const lstat = await makePromise(fs.lstat, path)
+        return {
+            lstat,
+            path,
+            relativePath,
+        }
     })
     return Promise.all(readFiles)
 }
@@ -36,7 +34,7 @@ function flattenStructure(structure, includeDirs) {
     const res = dirNames.reduce((acc, key) => {
         const item = structure[key]
         const innerFlatten = flattenArray(item, includeDirs)
-            .map(i => path.join(key, i))
+            .map(i => join(key, i))
         return [].concat(acc, innerFlatten)
     }, [])
     return includeDirs ? [].concat(res, dirNames) : res

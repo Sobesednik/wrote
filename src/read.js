@@ -1,4 +1,4 @@
-const fs = require('fs')
+const { createReadStream } = require('fs')
 const Catchment = require('catchment')
 
 /**
@@ -7,19 +7,16 @@ const Catchment = require('catchment')
  * @returns {Promise<string>} Resolves with contents of the file, rejects if
  * file not found.
  */
-function read(filePath) {
-    try {
-        const rs = fs.createReadStream(filePath)
-        return new Promise((resolve, reject) => {
-            rs.on('error', reject)
-            const catchment = new Catchment()
-            rs.pipe(catchment)
-            return catchment.promise
-                .then(resolve)
-        })
-    } catch (err) {
-        return Promise.reject(err)
-    }
+async function read(filePath) {
+    const rs = createReadStream(filePath)
+    const catchmentRes = await new Promise(async (resolve, reject) => {
+        rs.on('error', reject)
+        const catchment = new Catchment()
+        rs.pipe(catchment)
+        const res = await catchment.promise
+        resolve(res)
+    })
+    return catchmentRes
 }
 
 module.exports = read

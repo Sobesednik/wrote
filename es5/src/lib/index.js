@@ -1,4 +1,7 @@
-var path = require('path');
+var _require = require('path'),
+    join = _require.join,
+    resolve = _require.resolve;
+
 var fs = require('fs');
 var makePromise = require('makepromise');
 
@@ -17,17 +20,28 @@ var makePromise = require('makepromise');
  * @returns {File[]} An array with file objects.
  */
 function lstatFiles(dirPath, dirContent) {
-    var readFiles = dirContent.map(function (item) {
-        var fullPath = path.join(dirPath, item);
-        return makePromise(fs.lstat, fullPath).then(function (lstat) {
-            return {
-                lstat,
-                path: fullPath,
-                relativePath: item
-            };
+    return new Promise(function ($return, $error) {
+        var readFiles = dirContent.map(function (relativePath) {
+            return new Promise(function ($return, $error) {
+                var path, lstat;
+
+                path = resolve(dirPath, relativePath);
+                return Promise.resolve(makePromise(fs.lstat, path)).then(function ($await_1) {
+                    try {
+                        lstat = $await_1;
+                        return $return({
+                            lstat,
+                            path,
+                            relativePath
+                        });
+                    } catch ($boundEx) {
+                        return $error($boundEx);
+                    }
+                }.bind(this), $error);
+            }.bind(this));
         });
-    });
-    return Promise.all(readFiles);
+        return $return(Promise.all(readFiles));
+    }.bind(this));
 }
 
 function flattenStructure(structure, includeDirs) {
@@ -35,7 +49,7 @@ function flattenStructure(structure, includeDirs) {
     var res = dirNames.reduce(function (acc, key) {
         var item = structure[key];
         var innerFlatten = flattenArray(item, includeDirs).map(function (i) {
-            return path.join(key, i);
+            return join(key, i);
         });
         return [].concat(acc, innerFlatten);
     }, []);

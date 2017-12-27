@@ -1,4 +1,4 @@
-const assert = require('assert')
+const { deepEqual } = require('assert-diff')
 const readDir = require('../../src/read-dir')
 const context = require('../context/WroteContext')
 const expected = require('../fixtures/expected/read-dir')
@@ -8,13 +8,13 @@ const readDirTestSuite = {
     'should read a directory': (ctx) => {
         return readDir(ctx.FIXTURES_TEST_DIR)
             .then((res) => {
-                assert.deepEqual(res, expected.normal)
+                deepEqual(res, expected.normal)
             })
     },
     'should read a directory recursively': (ctx) => {
         return readDir(ctx.FIXTURES_TEST_DIR, true)
             .then((res) => {
-                assert.deepEqual(res, expected.recursive)
+                deepEqual(res, expected.recursive)
             })
     },
     'should reject promise if directory is not found': () => {

@@ -18,7 +18,7 @@ const expected = {
                 subsubdir: {
                     type: 'Directory',
                     content: {
-                        'file4.js': { type: 'File' },
+                        'file4.py': { type: 'File' },
                     },
                 },
                 subsubdir2: {

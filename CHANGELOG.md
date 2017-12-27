@@ -1,3 +1,8 @@
+## 0.7.0 (27 Dec 2017)
+
+* [feature] write es8, compile to es5
+* [feature] `readDirStructure` to return object representing a directory.
+
 ## 0.6.1 (29 Aug 2017)
 
 * [bufgix] install `catchment` as dependency for `read`.

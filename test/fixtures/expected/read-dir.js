@@ -6,7 +6,7 @@ const recursive = {
     subdirectory2: {
         'file3.data': 'a file in another subdirectory\n',
         subsubdir: {
-            'file4.js': 'process.stdout.write(\'test-file\')\n',
+            'file4.py': 'sys.stderr.write(\'test-file\')\n',
         },
         subsubdir2: { },
     },

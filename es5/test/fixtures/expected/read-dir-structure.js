@@ -1,4 +1,4 @@
-const expected = {
+var expected = {
     type: 'Directory',
     content: {
         'subdirectory-ln': { type: 'SymbolicLink' },
@@ -8,8 +8,8 @@ const expected = {
             type: 'Directory',
             content: {
                 'file.data': { type: 'File' },
-                'file2.data': { type: 'File' },
-            },
+                'file2.data': { type: 'File' }
+            }
         },
         subdirectory2: {
             type: 'Directory',
@@ -18,16 +18,16 @@ const expected = {
                 subsubdir: {
                     type: 'Directory',
                     content: {
-                        'file4.py': { type: 'File' },
-                    },
+                        'file4.py': { type: 'File' }
+                    }
                 },
                 subsubdir2: {
                     type: 'Directory',
-                    content: { },
-                },
-            },
-        },
-    },
-}
+                    content: {}
+                }
+            }
+        }
+    }
+};
 
-module.exports = expected
+module.exports = expected;

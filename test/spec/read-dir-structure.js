@@ -1,4 +1,5 @@
 const assert = require('assert')
+const { deepEqual } = require('assert-diff')
 const readDirStructure = require('../../src/read-dir-structure')
 const context = require('../context/WroteContext')
 
@@ -7,7 +8,7 @@ const readDirStructureTestSuite = {
     'should read directory structure': (ctx) => {
         return readDirStructure(ctx.FIXTURES_TEST_DIR)
             .then((res) => {
-                assert.deepEqual(res, ctx.expectedFixturesStructure)
+                deepEqual(res, ctx.expectedFixturesStructure)
             })
     },
     'should not work when directory is not passed': () => {

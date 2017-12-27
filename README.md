@@ -4,6 +4,15 @@
 
 Promise-based write and read operations for Node.js
 
+## ES5
+
+The package uses some newer language features. For your convenience, it's been
+transpiled to be compatible with Node 4. You can use the following snippet.
+
+```js
+const wrote = require('wrote/es5/src/')
+```
+
 ## `wrote(filepath=: string): Promise<Writable>`
 
 Create a write stream to your file without hastle.

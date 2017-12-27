@@ -9,7 +9,7 @@
     "test-watch": "zoroaster test/spec --watch",
     "tw": "npm run test-watch",
     "build-src": "babel src --out-dir es5/src",
-    "build-test": "babel test --out-dir es5/test --ignore test/fixtures/directory-ln,test/fixtures/directory/subdirectory-ln,test/fixtures/directory/test-ln.data  --copy-files",
+    "build-test": "babel test --out-dir es5/test --ignore test/fixtures/directory-ln,test/fixtures/directory/subdirectory-ln,test/fixtures/directory/test-ln.data --copy-files",
     "symlink-fixtures": "node symlink-fixtures",
     "build": "run-s build-src build-test symlink-fixtures"
   },

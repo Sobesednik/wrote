@@ -1,3 +1,7 @@
+## 0.7.1 (28 Dec 2017)
+
+* [chore] update code to es2017
+
 ## 0.7.0 (27 Dec 2017)
 
 * [feature] write es8, compile to es5

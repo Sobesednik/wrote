@@ -1,9 +1,6 @@
-const assert = require('assert')
-const wrote = require('../')
+const { read } = require('..');
 
-wrote.read(__filename)
-    .then((res) => {
-        console.log(res)
-        assert(res.startsWith("const assert = require('assert')"))
-    })
-    .catch(console.error)
+(async () => {
+    const res = await read(__filename)
+    console.log(res)
+})()

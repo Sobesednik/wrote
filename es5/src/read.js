@@ -5,15 +5,15 @@ var Catchment = require('catchment');
 
 /**
  * Read contents of a file to a variable.
- * @param {string} filePath path to the file to read
+ * @param {string} path path to the file to read
  * @returns {Promise<string>} Resolves with contents of the file, rejects if
  * file not found.
  */
-function read(filePath) {
+function read(path) {
     return new Promise(function ($return, $error) {
         var rs, catchmentRes;
 
-        rs = createReadStream(filePath);
+        rs = createReadStream(path);
         return Promise.resolve(new Promise(function (resolve, reject) {
             return new Promise(function ($return, $error) {
                 var catchment, res;

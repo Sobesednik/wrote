@@ -1,12 +1,12 @@
 const assert = require('assert')
 const ensurePath = require('../../src/ensure-path')
 const erase = require('../../src/erase')
-const wrote = require('../../src/index')
+const wrote = require('../../src/')
 const read = require('../../src/read')
 const readDir = require('../../src/read-dir')
 const write = require('../../src/write')
-// const rsync = require('../../src/rsync')
 const readDirStructure = require('../../src/read-dir-structure')
+const createWritable = require('../../src/create-writable')
 const api = require('../../')
 
 const apiTestSuite = {
@@ -30,6 +30,10 @@ const apiTestSuite = {
     },
     '0.7.0 should export readDirStructure': () => {
         assert.strictEqual(api.readDirStructure, readDirStructure)
+    },
+    '1.0.0 should export an object and createWritable instead of wrote'() {
+        assert(typeof api === 'object')
+        assert.strictEqual(api.createWritable, createWritable)
     },
 }
 

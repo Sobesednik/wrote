@@ -44,7 +44,7 @@ function getTempFile() {
  * @param {string} ffile path to the file
  * @returns {Promise<Writable>} A promise with the stream
  */
-function wrote() {
+function createWritable() {
     var $args = arguments;return new Promise(function ($return, $error) {
         var file, ws;
         file = $args.length > 0 && $args[0] !== undefined ? $args[0] : getTempFile();
@@ -59,4 +59,4 @@ function wrote() {
     }.bind(this));
 }
 
-module.exports = wrote;
+module.exports = createWritable;

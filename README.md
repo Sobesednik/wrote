@@ -13,75 +13,70 @@ transpiled to be compatible with Node 4. You can use the following snippet.
 const wrote = require('wrote/es5/src/')
 ```
 
-## `wrote(filepath=: string): Promise<Writable>`
+## Version 1.0.0 breaking change
 
-Create a write stream to your file without hastle.
+> The package now exports an object with functions, and `wrote` function to
+> create an open writable stream is renamed to `createWritable`.
+
+## `wrote.createWritable(path=: string): Promise.<Writable>`
+
+Create an open Writable stream to the file.
 
 ```js
 const { Writable } = require('stream')
 const path = require('path')
 const HOME_DIR = require('os').homedir()
-const wrote = require('./')
+const { createWritable } = require('wrote')
 
-const file = path.join(HOME_DIR, `wrote-${Math.floor(Math.random() * 1e5)}.data`)
+const file = path.join(HOME_DIR, `wrote-${Math.floor(Math.random() * 1e5)}.data`);
 
-return wrote(file)
-    .then((ws) => {
-        console.log(ws instanceof Writable) // true
-        console.log(ws.path) // ~/wrote-35558.data
-    })
-    .catch(console.error)
-
+(async () => {
+    const ws = await createWritable(file)
+    console.log(ws instanceof Writable) // true
+    console.log(ws.path) // ~/wrote-35558.data
+})()
 ```
 
-If you don't have a  file, a new one in the temp directory will be created for you.
+If you don't have a file, a new one in the temp directory will be created for you.
 
 ```js
-const wrote = require('wrote')
-const { Writable } = require('stream')
-
-return wrote()
-    .then((ws) => {
-        console.log(ws instanceof Writable) // true
-        console.log(ws.path) // /var/folders/s0/l33t/T/wrote-35558.data
-    })
-    .catch(console.error)
+(async () => {
+    const ws = await createWritable()
+    console.log(ws instanceof Writable) // true
+    console.log(ws.path) // /var/folders/s0/1h2g/T/wrote-48315.data
+})()
 ```
 
-## `wrote.erase(ws: Writable): Promise<Writable>`
+## `wrote.erase(ws: Writable): Promise.<Writable>`
 
 Erase file and close stream.
 
 ```js
-const wrote = require('wrote')
+const { createWritable, erase } = require('wrote')
 const { Writable } = require('stream')
 const path = require('path')
 const HOME_DIR = require('os').homedir()
-const fs = require('fs')
 
-const file = path.join(HOME_DIR, `wrote-${Math.floor(Math.random() * 1e5)}.data`)
+const file = path.join(HOME_DIR, `wrote-${Math.floor(Math.random() * 1e5)}.data`);
 
-return wrote(file)
-    .then((ws) => {
-        console.log(ws instanceof Writable) // true
-        console.log(ws.writable) // true
-        console.log(ws.path) // ~/wrote-35558.data
-        return wrote.erase(ws)
-    })
-    .then((ws) => {
-        console.log(ws.path) // ~/wrote-35558.data, but no longer exists
-        console.log(ws.writable) // false
-    })
-    .catch(console.error)
+(async () => {
+    const ws = await createWritable(file)
+    console.log(ws instanceof Writable) // true
+    console.log(ws.writable) // true
+    console.log(ws.path) // ~/wrote-35558.data
+    await erase(ws)
+    console.log(ws.closed) // true
+})()
+
 ```
 
-## `wrote.write(ws: Writable, data?: string|Readable): Promise<Writable>`
+## `wrote.write(ws: Writable, data?: string|Readable): Promise.<Writable>`
 
 Pipe a `Readable` to the `Writable` stream and wait until it is finished, or end
  `Writable` with given data (pass `null` to end stream without any more data).
 
 ```js
-const wrote = require('wrote')
+const { write } = require('wrote')
 const assert = require('assert')
 const { Writable } = require('stream')
 
@@ -93,15 +88,15 @@ const ws = new Writable({
         allRawData.push(chunk)
         next()
     },
-})
-wrote.write(ws, buffer)
-    .then(() => {
-        console.log(allRawData.map(d: String(d))) // [ 'hello world' ]
-        assert.deepEqual(allRawData, [
-            buffer,
-        ])
-    })
-    .catch(console.error)
+});
+
+(async () => {
+    await write(ws, buffer)
+    console.log(allRawData.map(d => String(d))) // [ 'hello world' ]
+    assert.deepEqual(allRawData, [
+        buffer,
+    ])
+})()
 ```
 
 ## `wrote.ensurePath(filePath: string): Promise<string>`
@@ -110,21 +105,18 @@ Create all required directories for the filepath to exist. If a directory on the
 non-executable, the Promise will be rejected. Resolves with the filepath.
 
 ```js
-const wrote = require('wrote')
-const tempPath = 'path/to/temp/file.data'
-const path = require('path')
+const { ensurePath } = require('wrote')
+const { resolve } = require('path');
 
-wrote.ensurePath(tempPath)
-    .then((res) => {
-        console.log(res) // path/to/temp/file.data, path/to/temp is created in your cwd
-    })
-    .then(() => {
-        const absolutePath = path.join(process.cwd(), tempPath)
-        return wrote.ensurePath(absolutePath)
-    })
-    .then((res) => {
-        console.log(res) // $(pwd)/path/to/temp/file.data, using previously created path
-    })
+(async () => {
+    const path = 'path/to/temp/file.data'
+    const res = await ensurePath(path)
+    console.log(res) // path/to/temp/file.data, path/to/temp is created in your cwd
+
+    const absolutePath = resolve(process.cwd(), 'path/to/temp/file.data')
+    const res2 = await ensurePath(absolutePath)
+    console.log(res2) // $(pwd)/path/to/temp/file.data
+})()
 ```
 
 ## `wrote.read(filePath: string): Promise<string>`
@@ -133,15 +125,12 @@ Read a file fully. Returns a Promise resolved with the file contents, and
 rejects if path is not a string or file not found (`ENOENT`).
 
 ```js
-const assert = require('assert')
-const wrote = require('wrote')
+const { read } = require('wrote');
 
-wrote.read(__filename)
-    .then((res) => {
-        console.log(res)
-        assert(res.startsWith("const assert = require('assert')"))
-    })
-    .catch(console.error)
+(async () => {
+    const res = await read(__filename)
+    console.log(res)
+})()
 ```
 
 `examples/read.js`: _this program will print the contents of itself_
@@ -165,34 +154,33 @@ directory
 can be read either shallowly (by default):
 
 ```js
-const wrote = require('../')
+const { readDir } = require('wrote')
+const path = require('path')
 
-wrote.readDir('directory')
-    .then((res) => {
-        console.log(res)
-        // { 'fileA.txt': 'fileA\n',
-        //   'fileB.txt': 'fileB\n',
-        //   'fileC.txt': 'fileC\n' }
-    })
-    .catch(console.error)
+const dirPath = path.join(__dirname, 'directory');
+
+(async () => {
+    const res = await readDir(dirPath)
+    console.log(res)
+    // { 'fileA.txt': 'fileA\n',
+    //   'fileB.txt': 'fileB\n',
+    //   'fileC.txt': 'fileC\n' }
+})()
 ```
 
 or recursively:
 
 ```js
-const wrote = require('../')
-
-wrote.readDir('directory', true)
-    .then((res) => {
-        console.log(res)
-        // { 'fileA.txt': 'fileA\n',
-        //   'fileB.txt': 'fileB\n',
-        //   'fileC.txt': 'fileC\n',
-        //   subdirectory:
-        //    { 'subdirFileA.txt': 'subdirFileA\n',
-        //      'subdirFileB.txt': 'subdirFileB\n' } }
-    })
-    .catch(console.error)
+(async () => {
+    const res = await readDir(dirPath, true)
+    console.log(res)
+    // { 'fileA.txt': 'fileA\n',
+    //   'fileB.txt': 'fileB\n',
+    //   'fileC.txt': 'fileC\n',
+    //   subdirectory:
+    //    { 'subdirFileA.txt': 'subdirFileA\n',
+    //      'subdirFileB.txt': 'subdirFileB\n' } }
+})()
 ```
 
 ## `wrote.readDirStructure(dirPath: string): Promise<DirectoryStructure>`
@@ -203,16 +191,22 @@ current one, with keys being their names, and values being arrays similar
 to the root one.
 
 ```js
-const wrote = require('wrote')
 const path = require('path')
+const { readDirStructure } = require('..')
 
-const dirPath = path.join(__dirname, 'directory')
+const DIR_PATH = path.join(__dirname, '../test/fixtures/directory');
 
-wrote.readDirStructure(dirPath)
-    .then(console.log, console.error)
+/**
+ * Read directory's structure.
+ */
+
+(async () => {
+    const res = await readDirStructure(DIR_PATH)
+    console.log(JSON.stringify(res, null, 2))
+})()
 ```
 
-```json
+```fs
 {
   "type": "Directory",
   "content": {
@@ -245,7 +239,7 @@ wrote.readDirStructure(dirPath)
         "subsubdir": {
           "type": "Directory",
           "content": {
-            "file4.js": {
+            "file4.py": {
               "type": "File"
             }
           }
@@ -262,7 +256,7 @@ wrote.readDirStructure(dirPath)
 
 ## todo
 
-- pass options to `fs.createWriteStream`
+- pass options to `fs.createWriteStream` in `wrote.createWritable`
 
 ---
 

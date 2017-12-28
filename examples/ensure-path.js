@@ -1,16 +1,12 @@
-const wrote = require('../src/')
-const tempPath = 'path/to/temp/file.data'
-const path = require('path')
+const { ensurePath } = require('..')
+const { resolve } = require('path');
 
-wrote.ensurePath(tempPath)
-    .then((res) => {
-        console.log(res) // path/to/temp/file.data, path/to/temp is created in your cwd
-    })
-    .then(() => {
-        const absolutePath = path.join(process.cwd(), tempPath)
-        return wrote.ensurePath(absolutePath)
-    })
-    .then((res) => {
-        console.log(res) // ~/path/to/temp/file.data, using previously created path
-    })
+(async () => {
+    const path = 'path/to/temp/file.data'
+    const res = await ensurePath(path)
+    console.log(res) // path/to/temp/file.data, path/to/temp is created in your cwd
 
+    const absolutePath = resolve(process.cwd(), 'path/to/temp/file.data')
+    const res2 = await ensurePath(absolutePath)
+    console.log(res2) // $(pwd)/path/to/temp/file.data
+})()

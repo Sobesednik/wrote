@@ -1,21 +1,21 @@
+const { write } = require('../')
 const assert = require('assert')
-const Writable = require('stream').Writable
-const wrote = require('../')
+const { Writable } = require('stream')
 
 const testString = 'hello world'
 const buffer = Buffer.from(testString)
 const allRawData = []
 const ws = new Writable({
-    write: (chunk, encoding, next) => {
+    write(chunk, encoding, next) {
         allRawData.push(chunk)
         next()
     },
-})
-wrote.write(ws, buffer)
-    .then(() => {
-        console.log(allRawData.map(d => String(d)))
-        assert.deepEqual(allRawData, [
-            buffer,
-        ])
-    })
-    .catch(console.error)
+});
+
+(async () => {
+    await write(ws, buffer)
+    console.log(allRawData.map(d => String(d))) // [ 'hello world' ]
+    assert.deepEqual(allRawData, [
+        buffer,
+    ])
+})()

@@ -1,3 +1,10 @@
+## 1.0.0 (28 Dec 2017)
+
+* [feature] `breaking`
+
+> The package now exports an object with functions, and `wrote` function to
+> create an open writable stream is renamed to `createWritable`.
+
 ## 0.7.1 (28 Dec 2017)
 
 * [chore] update code to es2017

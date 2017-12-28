@@ -13,11 +13,6 @@ transpiled to be compatible with Node 4. You can use the following snippet.
 const wrote = require('wrote/es5/src/')
 ```
 
-## Version 1.0.0 breaking change
-
-> The package now exports an object with functions, and `wrote` function to
-> create an open writable stream is renamed to `createWritable`.
-
 ## `wrote.createWritable(path=: string): Promise.<Writable>`
 
 Create an open Writable stream to the file.

@@ -10,7 +10,12 @@ var _require2 = require('path'),
     resolve = _require2.resolve;
 
 var spawnCommand = require('spawncommand');
-var wrote = require('../../src/');
+
+var _require3 = require('../../src/'),
+    createWritable = _require3.createWritable,
+    write = _require3.write,
+    erase = _require3.erase;
+
 var fixturesStructure = require('../fixtures/expected/read-dir-structure');
 
 var FIXTURES_DIR = resolve(__dirname, '../fixtures/');
@@ -73,10 +78,10 @@ function assertCanWriteFile(path) {
         var testData, ws, rs, catchment, res;
 
         testData = `some-test-data-${Date.now()}`;
-        return Promise.resolve(wrote(path)).then(function ($await_6) {
+        return Promise.resolve(createWritable(path)).then(function ($await_6) {
             try {
                 ws = $await_6;
-                return Promise.resolve(wrote.write(ws, testData)).then(function ($await_7) {
+                return Promise.resolve(write(ws, testData)).then(function ($await_7) {
                     try {
                         rs = fs.createReadStream(path);
 
@@ -135,11 +140,11 @@ function WroteContext() {
                         var tempFile, ws;
 
                         tempFile = createTempFilePath();
-                        return Promise.resolve(wrote(tempFile)).then(function ($await_9) {
+                        return Promise.resolve(createWritable(tempFile)).then(function ($await_9) {
                             try {
                                 ws = $await_9;
                                 tempFileWs = ws;
-                                return Promise.resolve(wrote.write(ws, this.TEST_DATA)).then(function ($await_10) {
+                                return Promise.resolve(write(ws, this.TEST_DATA)).then(function ($await_10) {
                                     try {
                                         this._tempFile = tempFile;
                                         return $return();
@@ -256,7 +261,7 @@ function WroteContext() {
                             promises.push(pc2.promise);
                         }
                         if (tempFileWs) {
-                            promise = wrote.erase(tempFileWs);
+                            promise = erase(tempFileWs);
                             promises.push(promise);
                         }
                         // remove temp file

@@ -28,9 +28,9 @@ function getTempFile() {
  * @param {string} ffile path to the file
  * @returns {Promise<Writable>} A promise with the stream
  */
-async function wrote(file = getTempFile()) {
+async function createWritable(file = getTempFile()) {
     const ws = await openFileForWrite(file)
     return ws
 }
 
-module.exports = wrote
+module.exports = createWritable

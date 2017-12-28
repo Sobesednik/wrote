@@ -43,13 +43,13 @@ function endStream(ws) {
 /**
  * Unlink a file based on its WriteStream and close the underlying stream.
  * @param {Writable} ws Writable of a file
- * @returns {Writable>} Closed writable stream
+ * @returns {Promise.<Writable>} Closed writable stream
  */
 function erase(ws) {
     return new Promise(function ($return, $error) {
         return Promise.resolve(unlink(ws.path)).then(function ($await_5) {
             try {
-                if (!ws.closed) {
+                if (ws.writable) {
                     return Promise.resolve(endStream(ws)).then(function ($await_6) {
                         try {
                             return $If_1.call(this);

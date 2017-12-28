@@ -20,11 +20,11 @@ async function endStream(ws) {
 /**
  * Unlink a file based on its WriteStream and close the underlying stream.
  * @param {Writable} ws Writable of a file
- * @returns {Writable>} Closed writable stream
+ * @returns {Promise.<Writable>} Closed writable stream
  */
 async function erase(ws) {
     await unlink(ws.path)
-    if (!ws.closed) {
+    if (ws.writable) {
         await endStream(ws)
     }
     return ws

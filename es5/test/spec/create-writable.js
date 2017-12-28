@@ -3,19 +3,19 @@ var assert = require('assert');
 var _require = require('stream'),
     Writable = _require.Writable;
 
-var wrote = require('../../src/wrote');
+var createWritable = require('../../src/create-writable');
 var WroteContext = require('../context/WroteContext');
 
-var wroteTestSuite = {
+var createWritableTestSuite = {
     context: WroteContext,
-    'should be a function': function shouldBeAFunction() {
-        assert(typeof wrote === 'function');
+    'should be a function'() {
+        assert(typeof createWritable === 'function');
     },
     'should return a promise'() {
         return new Promise(function ($return, $error) {
             var res;
 
-            res = wrote();
+            res = createWritable();
             assert(res instanceof Promise);
             return Promise.resolve(res).then(function ($await_1) {
                 try {
@@ -29,7 +29,7 @@ var wroteTestSuite = {
     'should resolve with a write stream'() {
         return new Promise(function ($return, $error) {
             var ws;
-            return Promise.resolve(wrote()).then(function ($await_2) {
+            return Promise.resolve(createWritable()).then(function ($await_2) {
                 try {
                     ws = $await_2;
                     assert(ws instanceof Writable);
@@ -44,7 +44,7 @@ var wroteTestSuite = {
         return new Promise(function ($return, $error) {
             var tempFile, ws;
             tempFile = _ref.tempFile;
-            return Promise.resolve(wrote(tempFile)).then(function ($await_3) {
+            return Promise.resolve(createWritable(tempFile)).then(function ($await_3) {
                 try {
                     ws = $await_3;
                     assert.equal(ws.path, tempFile);
@@ -61,7 +61,7 @@ var wroteTestSuite = {
         return new Promise(function ($return, $error) {
             var tempFile, ws;
             tempFile = _ref2.tempFile;
-            return Promise.resolve(wrote(tempFile)).then(function ($await_4) {
+            return Promise.resolve(createWritable(tempFile)).then(function ($await_4) {
                 try {
                     ws = $await_4;
                     return Promise.resolve(new Promise(function (resolve, reject) {
@@ -85,6 +85,4 @@ var wroteTestSuite = {
     }
 };
 
-module.exports = {
-    wroteTestSuite
-};
+module.exports = createWritableTestSuite;

@@ -1,7 +1,7 @@
 var assert = require('assert');
 var makePromise = require('makepromise');
 var erase = require('../../src/erase');
-var wrote = require('../../src/wrote');
+var createWritable = require('../../src/create-writable');
 var context = require('../context/WroteContext');
 
 var eraseTestSuite = {
@@ -10,7 +10,7 @@ var eraseTestSuite = {
         return new Promise(function ($return, $error) {
             var tempFile, assertFileDoesNotExist, ws;
             tempFile = _ref.tempFile, assertFileDoesNotExist = _ref.assertFileDoesNotExist;
-            return Promise.resolve(wrote(tempFile)).then(function ($await_1) {
+            return Promise.resolve(createWritable(tempFile)).then(function ($await_1) {
                 try {
                     ws = $await_1;
                     assert(!ws.closed);
@@ -39,7 +39,7 @@ var eraseTestSuite = {
         return new Promise(function ($return, $error) {
             var assertFileDoesNotExist, ws;
             assertFileDoesNotExist = _ref2.assertFileDoesNotExist;
-            return Promise.resolve(wrote()).then(function ($await_4) {
+            return Promise.resolve(createWritable()).then(function ($await_4) {
                 try {
                     ws = $await_4;
                     assert(!ws.closed);
@@ -67,7 +67,7 @@ var eraseTestSuite = {
         return new Promise(function ($return, $error) {
             var tempFile, assertFileExists, assertFileDoesNotExist, ws;
             tempFile = _ref3.tempFile, assertFileExists = _ref3.assertFileExists, assertFileDoesNotExist = _ref3.assertFileDoesNotExist;
-            return Promise.resolve(wrote(tempFile)).then(function ($await_7) {
+            return Promise.resolve(createWritable(tempFile)).then(function ($await_7) {
                 try {
                     ws = $await_7;
                     return Promise.resolve(makePromise(ws.end.bind(ws))).then(function ($await_8) {

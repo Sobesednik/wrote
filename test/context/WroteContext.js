@@ -5,7 +5,7 @@ const makePromise = require('makepromise')
 const { tmpdir } = require('os')
 const { resolve } = require('path')
 const spawnCommand = require('spawncommand')
-const wrote = require('../../src/')
+const { createWritable, write, erase } = require('../../src/')
 const fixturesStructure = require('../fixtures/expected/read-dir-structure')
 
 const FIXTURES_DIR = resolve(__dirname, '../fixtures/')
@@ -31,8 +31,8 @@ async function assertFileExists(path) {
 
 async function assertCanWriteFile(path) {
     const testData = `some-test-data-${Date.now()}`
-    const ws = await wrote(path)
-    await wrote.write(ws, testData)
+    const ws = await createWritable(path)
+    await write(ws, testData)
     const rs = fs.createReadStream(path)
 
     const catchment = new Catchment()
@@ -64,9 +64,9 @@ async function WroteContext() {
         },
         createTempFileWithData: { async value() {
             const tempFile = createTempFilePath()
-            const ws = await wrote(tempFile)
+            const ws = await createWritable(tempFile)
             tempFileWs = ws
-            await wrote.write(ws, this.TEST_DATA)
+            await write(ws, this.TEST_DATA)
             this._tempFile = tempFile
         }},
         assertFileDoesNotExist: {
@@ -130,7 +130,7 @@ async function WroteContext() {
                 promises.push(pc2.promise)
             }
             if (tempFileWs) {
-                const promise = wrote.erase(tempFileWs)
+                const promise = erase(tempFileWs)
                 promises.push(promise)
             }
             // remove temp file

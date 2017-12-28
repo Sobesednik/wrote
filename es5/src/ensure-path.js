@@ -5,13 +5,13 @@ var _require = require('path'),
     dirname = _require.dirname;
 
 /**
- * Make sure that a file can be created by making all directories to which it belongs
+ * Make sure that a file can be created by creating all directories to which it
+ * belongs, e.g., ensurePath('/usr/local/test/wrote.data') will attempt to
+ * create /usr/local/test/ directory recursivelly.
  * @param {string} path Path to the file
- * @resolves {path} Resolves with given filepath
- * @rejects {Error} Rejects when a first folder in the path is non-executable
+ * @returns {Promise.<string>} Same path as passed
+ * @throws {Error} When the first folder in the path is non-executable
  */
-
-
 function ensurePath(path) {
     return new Promise(function ($return, $error) {
         var dir;

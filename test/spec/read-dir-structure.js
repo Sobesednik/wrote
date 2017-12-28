@@ -5,47 +5,43 @@ const context = require('../context/WroteContext')
 
 const readDirStructureTestSuite = {
     context,
-    'should read directory structure': (ctx) => {
-        return readDirStructure(ctx.FIXTURES_TEST_DIR)
-            .then((res) => {
-                deepEqual(res, ctx.expectedFixturesStructure)
-            })
+    async 'should read directory structure'({ FIXTURES_TEST_DIR, expectedFixturesStructure }) {
+        const res = await readDirStructure(FIXTURES_TEST_DIR)
+        deepEqual(res, expectedFixturesStructure)
     },
-    'should not work when directory is not passed': () => {
-        return readDirStructure()
-            .then(() => {
-                throw new Error('should have been rejected')
-            }, (err) => {
-                assert.equal(err.message, 'Please specify a path to the directory')
-            })
+    async 'should not work when directory is not passed'() {
+        try {
+            await readDirStructure()
+            throw new Error('should have been rejected')
+        } catch ({ message }) {
+            assert.equal(message, 'Please specify a path to the directory')
+        }
     },
-    'should not work when directory does not exist': () => {
-        return readDirStructure('fake-directory')
-            .then(() => {
-                throw new Error('should have been rejected')
-            }, (err) => {
-                assert.equal(err.code, 'ENOENT')
-            })
+    async 'should not work when directory does not exist'() {
+        try {
+            await readDirStructure('fake-directory')
+            throw new Error('should have been rejected')
+        } catch ({ code }) {
+            assert.equal(code, 'ENOENT')
+        }
     },
-    'should not work when passing a path to file': (ctx) => {
-        return ctx.createTempFileWithData()
-            .then(() => {
-                return readDirStructure(ctx.tempFile)
-            })
-            .then(() => {
-                throw new Error('should have been rejected')
-            }, (err) => {
-                assert.equal(err.code, 'ENOTDIR')
-            })
+    async 'should not work when passing a path to file'(ctx) {
+        try {
+            await ctx.createTempFileWithData()
+            await readDirStructure(ctx.tempFile)
+            throw new Error('should have been rejected')
+        } catch ({ code }) {
+            assert.equal(code, 'ENOTDIR')
+        }
     },
-    'should not work when passing a path to soft link': (ctx) => {
-        return readDirStructure(ctx.FIXTURES_TEST_DIR_SOFT_LINK)
-            .then(() => {
-                throw new Error('should have been rejected')
-            }, (err) => {
-                assert.equal(err.message, 'Path is not a directory')
-                assert.equal(err.code, 'ENOTDIR')
-            })
+    async 'should not work when passing a path to soft link'(ctx) {
+        try {
+            await readDirStructure(ctx.FIXTURES_TEST_DIR_SOFT_LINK)
+            throw new Error('should have been rejected')
+        } catch ({ message, code }) {
+            assert.equal(message, 'Path is not a directory')
+            assert.equal(code, 'ENOTDIR')
+        }
     },
 }
 

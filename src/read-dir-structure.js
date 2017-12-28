@@ -47,52 +47,44 @@ const getType = (lstatRes) => {
  * @param {string} dirPath Path to the directory
  * @returns {Promise.<DirectoryStructure>} An object reflecting directory structure
  */
-function readDirStructure(dirPath) {
+async function readDirStructure(dirPath) {
     if (!dirPath) {
-        return Promise.reject(new Error('Please specify a path to the directory'))
+        throw new Error('Please specify a path to the directory')
     }
-    return makePromise(fs.lstat, dirPath)
-        .then((res) => {
-            if (!res.isDirectory()) {
-                const err = new Error('Path is not a directory')
-                err.code = 'ENOTDIR'
-                throw err
-            }
-            return makePromise(fs.readdir, dirPath)
-        })
-        .then((res) => {
-            return lib.lstatFiles(dirPath, res)
-        })
-        .then((lstatRes) => {
-            const directories = lstatRes.filter(isDirectory)
-            const notDirectories = lstatRes.filter(isNotDirectory)
-            const files = notDirectories.reduce((acc, lstatRes) => Object.assign(acc, {
-                [lstatRes.relativePath]: {
-                    type: getType(lstatRes),
-                },
-            }), {})
-            // return files
-            return Promise.all(directories.map((dir) => {
-                return readDirStructure(dir.path)
-                    .then((res) => ({
-                        [dir.relativePath]: res,
-                    }))
-            }))
-                .then((allDirs) => {
-                    if (!allDirs.length) return {}
-                    return allDirs.reduce((acc, current) => Object.assign(acc, current), {})
-                })
-                .then((dirs) => {
-                    return Object.assign({}, files, dirs)
-                })
-        })
-        .then((res) => {
-            return {
-                type: 'Directory',
-                content: res,
-            }
-            // return [].concat(notDirs, res)
-        })
+    const lstat = await makePromise(fs.lstat, dirPath)
+    if (!lstat.isDirectory()) {
+        const err = new Error('Path is not a directory')
+        err.code = 'ENOTDIR'
+        throw err
+    }
+    const dir = await makePromise(fs.readdir, dirPath)
+    const lstatRes = await lib.lstatFiles(dirPath, dir)
+
+    const directories = lstatRes.filter(isDirectory)
+    const notDirectories = lstatRes.filter(isNotDirectory)
+
+    const files = notDirectories.reduce((acc, lstatRes) => Object.assign(acc, {
+        [lstatRes.relativePath]: {
+            type: getType(lstatRes),
+        },
+    }), {})
+
+    const dirPromises = directories.map(async ({ path, relativePath }) => {
+        const structure = await readDirStructure(path)
+        return [relativePath, structure]
+    })
+    const dirsArray = await Promise.all(dirPromises)
+    const dirs = dirsArray.reduce(
+        (acc, [relativePath, structure]) => {
+            const d = { [relativePath]: structure }
+            return Object.assign(acc, d)
+        }, {}
+    )
+    const merged = Object.assign({}, files, dirs)
+    return {
+        type: 'Directory',
+        content: merged,
+    }
 }
 
 module.exports = readDirStructure

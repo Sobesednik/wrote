@@ -1,11 +1,10 @@
-const fs = require('fs')
-const os = require('os')
-const path = require('path')
-const TEMP_DIR = os.tmpdir()
+const { createWriteStream } = require('fs')
+const { resolve } = require('path')
+const { tmpdir } = require('os')
 
-function openFileForWrite(filepath) {
-    return new Promise((resolve, reject) => {
-        const ws = fs.createWriteStream(filepath, {
+async function openFileForWrite(path) {
+    const writable = await new Promise((resolve, reject) => {
+        const ws = createWriteStream(path, {
             flags: 'w',
             defaultEncoding: 'utf8',
             fd: null,
@@ -15,11 +14,12 @@ function openFileForWrite(filepath) {
         ws.once('open', () => resolve(ws))
         ws.once('error', reject)
     })
+    return writable
 }
 
 function getTempFile() {
     const rnd = Math.ceil(Math.random() * 100000)
-    const tempFile = path.join(TEMP_DIR, `wrote-${rnd}.data`)
+    const tempFile = resolve(tmpdir(), `wrote-${rnd}.data`)
     return tempFile
 }
 
@@ -28,10 +28,9 @@ function getTempFile() {
  * @param {string} ffile path to the file
  * @returns {Promise<Writable>} A promise with the stream
  */
-function wrote(file) {
-    const _file = (typeof file).toLowerCase() === 'string' ?
-        file : getTempFile()
-    return openFileForWrite(_file)
+async function wrote(file = getTempFile()) {
+    const ws = await openFileForWrite(file)
+    return ws
 }
 
 module.exports = wrote

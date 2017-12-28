@@ -1,55 +1,44 @@
 const { deepEqual } = require('assert-diff')
+const assert = require('assert')
 const readDir = require('../../src/read-dir')
 const context = require('../context/WroteContext')
 const expected = require('../fixtures/expected/read-dir')
 
 const readDirTestSuite = {
     context,
-    'should read a directory': (ctx) => {
-        return readDir(ctx.FIXTURES_TEST_DIR)
-            .then((res) => {
-                deepEqual(res, expected.normal)
-            })
+    async 'should read a directory'({ FIXTURES_TEST_DIR }) {
+        const res = await readDir(FIXTURES_TEST_DIR)
+        deepEqual(res, expected.normal)
     },
-    'should read a directory recursively': (ctx) => {
-        return readDir(ctx.FIXTURES_TEST_DIR, true)
-            .then((res) => {
-                deepEqual(res, expected.recursive)
-            })
+    async 'should read a directory recursively'({ FIXTURES_TEST_DIR }) {
+        const res = await readDir(FIXTURES_TEST_DIR, true)
+        deepEqual(res, expected.recursive)
     },
-    'should reject promise if directory is not found': () => {
+    async 'should reject promise if directory is not found'() {
         const dirname = `${Math.floor(Math.random() * 1e5)}.data`
-        return readDir(dirname)
-            .then(() => {
-                throw new Error('should have thrown an error')
-            }, (err) => {
-                if (!/ENOENT/.test(err.message)) {
-                    throw err
-                }
-            })
+        try {
+            await readDir(dirname)
+            throw new Error('should have thrown an error')
+        } catch ({ code }) {
+            assert.equal(code, 'ENOENT')
+        }
     },
-    'should reject promise if not a directory': (ctx) => {
-        return ctx.createTempFileWithData()
-            .then(() => {
-                return readDir(ctx.tempFile)
-            })
-            .then(() => {
-                throw new Error('should have thrown an error')
-            }, (err) => {
-                if (!/ENOTDIR/.test(err.message)) {
-                    throw err
-                }
-            })
+    async 'should reject promise if not a directory'(ctx) {
+        try {
+            await ctx.createTempFileWithData()
+            await readDir(ctx.tempFile)
+            throw new Error('should have thrown an error')
+        } catch ({ code }) {
+            assert.equal(code, 'ENOTDIR')
+        }
     },
-    'should throw if path is not a string': () => {
-        return readDir()
-            .then(() => {
-                throw new Error('should have thrown an error')
-            }, (err) => {
-                if (!/path must be a string/.test(err.message)) {
-                    throw err
-                }
-            })
+    async 'should throw if path is not a string'() {
+        try {
+            await readDir()
+            throw new Error('should have thrown an error')
+        } catch ({ message }) {
+            assert(/path must be a string/.test(message))
+        }
     },
 }
 

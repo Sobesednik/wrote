@@ -1,60 +1,53 @@
-'use strict'
 const assert = require('assert')
 const Catchment = require('catchment')
 const fs = require('fs')
 const makePromise = require('makepromise')
-const os = require('os')
-const path = require('path')
+const { tmpdir } = require('os')
+const { resolve } = require('path')
 const spawnCommand = require('spawncommand')
 const wrote = require('../../src/')
 const fixturesStructure = require('../fixtures/expected/read-dir-structure')
 
-const FIXTURES_DIR = path.join(__dirname, '../fixtures/')
-const FIXTURES_TEST_DIR = path.join(FIXTURES_DIR, 'directory')
-const FIXTURES_TEST_DIR_SOFT_LINK = path.join(FIXTURES_DIR, 'directory-ln')
+const FIXTURES_DIR = resolve(__dirname, '../fixtures/')
+const FIXTURES_TEST_DIR = resolve(FIXTURES_DIR, 'directory')
+const FIXTURES_TEST_DIR_SOFT_LINK = resolve(FIXTURES_DIR, 'directory-ln')
 
 const TEST_NAME = `wrote-test-${Math.floor(Math.random() * 1e5)}.data`
-const createTempFilePath = () => {
-    return path.join(os.tmpdir(), TEST_NAME)
+
+const createTempFilePath = () => resolve(tmpdir(), TEST_NAME)
+
+async function assertFileDoesNotExist(path) {
+    try {
+        await makePromise(fs.stat, path)
+        throw new Error('should have been rejected')
+    } catch ({ message }) {
+        assert(/^ENOENT: no such file or directory/.test(message))
+    }
 }
 
-function assertFileDoesNotExist(filepath) {
-    return makePromise(fs.stat, filepath)
-        .then(() => {
-            throw new Error('should have been rejected')
-        }, (err) => {
-            assert(/^ENOENT: no such file or directory/.test(err.message))
-        })
+async function assertFileExists(path) {
+    await makePromise(fs.stat, path)
 }
 
-function assertFileExists(filepath) {
-    return makePromise(fs.stat, filepath)
-}
-
-function assertCanWriteFile(filePath) {
+async function assertCanWriteFile(path) {
     const testData = `some-test-data-${Date.now()}`
-    return wrote(filePath)
-        .then((ws) => {
-            return wrote.write(ws, testData)
-        })
-        .then(() => {
-            const rs = fs.createReadStream(filePath)
-            const catchment = new Catchment()
-            rs.pipe(catchment)
-            return catchment.promise
-        })
-        .then((res) => {
-            assert.equal(res, testData)
-        })
+    const ws = await wrote(path)
+    await wrote.write(ws, testData)
+    const rs = fs.createReadStream(path)
+
+    const catchment = new Catchment()
+    rs.pipe(catchment)
+    const res = await catchment.promise
+    assert.equal(res, testData)
 }
 
-const TEMP_DIR = path.join(__dirname, '../temp')
+const TEMP_DIR = resolve(__dirname, '../temp')
 const TEST_DIR_NAME = '_tests'
 const TEST_DIR_NOX_NAME = 'no-execute'
-const TEMP_TEST_DIR = path.join(TEMP_DIR, TEST_DIR_NAME)
-const TEMP_NOX_DIR = path.join(TEMP_DIR, TEST_DIR_NOX_NAME)
+const TEMP_TEST_DIR = resolve(TEMP_DIR, TEST_DIR_NAME)
+const TEMP_NOX_DIR = resolve(TEMP_DIR, TEST_DIR_NOX_NAME)
 
-function WroteContext() {
+async function WroteContext() {
     Object.assign(this, {
         TEST_NAME,
         TEST_DATA: 'some test data for temp file',
@@ -62,26 +55,20 @@ function WroteContext() {
     let tempFileWs
     Object.defineProperties(this, {
         tempFile: {
-            get: () => {
+            get() {
                 return this._tempFile || createTempFilePath()
             },
         },
         expectedFixturesStructure: {
-            get: () => fixturesStructure,
+            get() { return fixturesStructure },
         },
-        createTempFileWithData: {
-            value: () => {
-                const tempFile = createTempFilePath()
-                return wrote(tempFile)
-                    .then((ws) => {
-                        tempFileWs = ws
-                        return wrote.write(ws, this.TEST_DATA)
-                    })
-                    .then(() => {
-                        this._tempFile = tempFile
-                    })
-            },
-        },
+        createTempFileWithData: { async value() {
+            const tempFile = createTempFilePath()
+            const ws = await wrote(tempFile)
+            tempFileWs = ws
+            await wrote.write(ws, this.TEST_DATA)
+            this._tempFile = tempFile
+        }},
         assertFileDoesNotExist: {
             get: () => assertFileDoesNotExist,
         },
@@ -119,24 +106,20 @@ function WroteContext() {
                 return this._TEMP_NOX_DIR
             },
         },
-        makeNoExecutableDirectory: {
-            value: () => {
-                if (this._TEMP_NOX_DIR) {
-                    return Promise.reject(new Error('No executable directory already created'))
+        makeNoExecutableDirectory: { async value() {
+            if (this._TEMP_NOX_DIR) {
+                return Promise.reject(new Error('No executable directory already created'))
+            }
+            try {
+                await makePromise(fs.mkdir, [TEMP_NOX_DIR, 0o666])
+                this._TEMP_NOX_DIR = TEMP_NOX_DIR
+            } catch ({ message }) {
+                if (/EEXIST/.test(message)) {
+                    throw new Error('WroteContext: Could not make no executable directory: it already exists')
                 }
-                return makePromise(fs.mkdir, [TEMP_NOX_DIR, 0o666])
-                    .then(() => {
-                        this._TEMP_NOX_DIR = TEMP_NOX_DIR
-                    })
-                    .catch((err) => {
-                        if (/EEXIST/.test(err.message)) {
-                            throw new Error('WroteContext: Could not make no executable '
-                                + 'directory: it already exists')
-                        }
-                    })
-            },
-        },
-        _destroy: { value: () => {
+            }
+        }},
+        _destroy: { async value() {
             const promises = []
             if (this._TEMP_TEST_DIR && !process.env.KEEP_TEMP) {
                 const pc = spawnCommand('rm', ['-rf', this._TEMP_TEST_DIR])
@@ -151,27 +134,22 @@ function WroteContext() {
                 promises.push(promise)
             }
             // remove temp file
-            return Promise.all(promises)
+            await Promise.all(promises)
         }},
     })
 
     // always make temp dir available
-    const pc = spawnCommand('rm', ['-rf', TEMP_TEST_DIR])
-    const p1 = pc.promise
-        .then(() => {
-            return makePromise(fs.mkdir, [TEMP_TEST_DIR, 0o777])
-        })
-        .then(() => {
-            this._TEMP_TEST_DIR = TEMP_TEST_DIR
-        })
-        .catch((err) => {
-            if (/EEXIST/.test(err.message)) {
-                throw new Error('WroteContext: Could not make temp test '
-                    + 'directory: it already exists')
-            }
-            throw err
-        })
-    return Promise.all([p1])
+    try {
+        const { promise } = spawnCommand('rm', ['-rf', TEMP_TEST_DIR])
+        await promise
+        await makePromise(fs.mkdir, [TEMP_TEST_DIR, 0o777])
+        this._TEMP_TEST_DIR = TEMP_TEST_DIR
+    } catch (err) {
+        if (/EEXIST/.test(err.message)) {
+            throw new Error('WroteContext: Could not make temp test directory: it already exists.')
+        }
+        throw err
+    }
 }
 
 module.exports = WroteContext

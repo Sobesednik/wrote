@@ -30,7 +30,6 @@ var apiTestSuite = {
     },
     '0.7.0 should export readDirStructure': function shouldExportReadDirStructure() {
         assert.strictEqual(api.readDirStructure, readDirStructure);
-        // assert.strictEqual(api.rmrf, rmrf)
     }
 };
 

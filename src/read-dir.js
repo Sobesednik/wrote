@@ -1,23 +1,7 @@
-'use strict'
 const fs = require('fs')
 const makePromise = require('makepromise')
-const path = require('path')
 const read = require('./read')
-
-function lstatFiles(dirPath, dirContent) {
-    const readFiles = dirContent.map((fileOrDir) => {
-        const newPath = path.join(dirPath, fileOrDir)
-        return makePromise(fs.lstat, newPath)
-            .then((lstat) => {
-                return {
-                    lstat,
-                    path: newPath,
-                    relativePath: fileOrDir,
-                }
-            })
-    })
-    return Promise.all(readFiles)
-}
+const { lstatFiles } = require('./lib/')
 
 /**
  * Filter lstat results, taking only files if recursive is false.
@@ -29,8 +13,8 @@ function filterFiles(files, recursive) {
     const fileOrDir = (lstat) => {
         return lstat.isFile() || lstat.isDirectory()
     }
-    return files.filter((file) => {
-        return recursive ? fileOrDir(file.lstat) : file.lstat.isFile()
+    return files.filter(({ lstat }) => {
+        return recursive ? fileOrDir(lstat) : lstat.isFile()
     })
 }
 
@@ -41,32 +25,31 @@ function filterFiles(files, recursive) {
  * @returns {Promise<object>} An object reflecting directory structure, e.g.,
  * { dir: subdir: { 'fileA.txt': 'foo', 'fileB.js': 'bar' }, 'fileC.jpg': 'baz' }
  */
-function readDir(dirPath, recursive) {
-    return makePromise(fs.readdir, [dirPath])
-        .then((res) => {
-            return lstatFiles(dirPath, res)
-        })
-        .then((lstatRes) => {
-            const filteredFiles = filterFiles(lstatRes, recursive)
-            const promises = filteredFiles.map((file) => {
-                let promise
-                if (file.lstat.isDirectory()) {
-                    promise = readDir(file.path, recursive)
-                } else if (file.lstat.isFile()) {
-                    promise = read(file.path)
-                }
-                return promise
-                    .then((res) => {
-                        return { file: file.relativePath, data: res }
-                    })
-            })
-            return Promise.all(promises)
-        })
-        .then((res) => {
-            return res.reduce((acc, current) => {
-                return Object.assign({}, acc, { [current.file]: current.data })
-            }, {})
-        })
+async function readDir(dirPath, recursive = false) {
+    const contents = await makePromise(fs.readdir, [dirPath])
+    const lstatRes = await lstatFiles(dirPath, contents)
+    const filteredFiles = filterFiles(lstatRes, recursive)
+
+    const promises = filteredFiles.map(async ({ lstat, path, relativePath }) => {
+        let promise = Promise.resolve()
+        if (lstat.isDirectory()) {
+            promise = readDir(path, recursive)
+        } else if (lstat.isFile()) {
+            promise = read(path)
+        }
+        const data = await promise
+        return { relativePath, data }
+    })
+    const allRead = await Promise.all(promises)
+    const res = allRead.reduce(
+        (acc, { data, relativePath }) => {
+            const d = {
+                [relativePath]: data,
+            }
+            return Object.assign(acc, d)
+        }, {}
+    )
+    return res
 }
 
 module.exports = readDir

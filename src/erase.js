@@ -1,36 +1,33 @@
 const makePromise = require('makepromise')
 const fs = require('fs')
 
-function unlink(path) {
-    const promise = makePromise(fs.unlink, path, path)
-    return promise
+async function unlink(path) {
+    await makePromise(fs.unlink, path)
 }
 
-function endStream(ws) {
+async function endStream(ws) {
     if (!ws.writable || ws.closed) {
-        return Promise.reject(new Error('stream should be writable'))
+        throw new Error('stream should be writable')
     }
     const promise = new Promise((resolve, reject) => {
-        ws.once('close', () => resolve(ws))
+        ws.once('close', resolve)
         ws.once('error', reject)
     })
-    return makePromise(ws.close.bind(ws))
-        .then(() => promise)
+    await makePromise(ws.close.bind(ws))
+    await promise
 }
 
 /**
- * Unlink a file based on its WriteStream.
+ * Unlink a file based on its WriteStream and close the underlying stream.
  * @param {Writable} ws Writable of a file
- * @returns {Promise<Writable>} Promise resolved with the stream.
+ * @returns {Writable>} Closed writable stream
  */
-function erase(ws) {
-    return unlink(ws.path)
-        .then(() => {
-            if (!ws.closed) {
-                return endStream(ws)
-            }
-            return ws
-        })
+async function erase(ws) {
+    await unlink(ws.path)
+    if (!ws.closed) {
+        await endStream(ws)
+    }
+    return ws
 }
 
 module.exports = erase

@@ -1,23 +1,9 @@
-'use strict';
-
 var fs = require('fs');
 var makePromise = require('makepromise');
-var path = require('path');
 var read = require('./read');
 
-function lstatFiles(dirPath, dirContent) {
-    var readFiles = dirContent.map(function (fileOrDir) {
-        var newPath = path.join(dirPath, fileOrDir);
-        return makePromise(fs.lstat, newPath).then(function (lstat) {
-            return {
-                lstat,
-                path: newPath,
-                relativePath: fileOrDir
-            };
-        });
-    });
-    return Promise.all(readFiles);
-}
+var _require = require('./lib/'),
+    lstatFiles = _require.lstatFiles;
 
 /**
  * Filter lstat results, taking only files if recursive is false.
@@ -25,12 +11,16 @@ function lstatFiles(dirPath, dirContent) {
  * @param {boolean} [recursive = false] Whether recursive mode is on
  * @returns {lstat[]} Filtered array.
  */
+
+
 function filterFiles(files, recursive) {
     var fileOrDir = function fileOrDir(lstat) {
         return lstat.isFile() || lstat.isDirectory();
     };
-    return files.filter(function (file) {
-        return recursive ? fileOrDir(file.lstat) : file.lstat.isFile();
+    return files.filter(function (_ref) {
+        var lstat = _ref.lstat;
+
+        return recursive ? fileOrDir(lstat) : lstat.isFile();
     });
 }
 
@@ -41,28 +31,65 @@ function filterFiles(files, recursive) {
  * @returns {Promise<object>} An object reflecting directory structure, e.g.,
  * { dir: subdir: { 'fileA.txt': 'foo', 'fileB.js': 'bar' }, 'fileC.jpg': 'baz' }
  */
-function readDir(dirPath, recursive) {
-    return makePromise(fs.readdir, [dirPath]).then(function (res) {
-        return lstatFiles(dirPath, res);
-    }).then(function (lstatRes) {
-        var filteredFiles = filterFiles(lstatRes, recursive);
-        var promises = filteredFiles.map(function (file) {
-            var promise = void 0;
-            if (file.lstat.isDirectory()) {
-                promise = readDir(file.path, recursive);
-            } else if (file.lstat.isFile()) {
-                promise = read(file.path);
+function readDir(dirPath) {
+    var $args = arguments;return new Promise(function ($return, $error) {
+        var recursive, contents, lstatRes, filteredFiles, promises, allRead, res;
+        recursive = $args.length > 1 && $args[1] !== undefined ? $args[1] : false;
+        return Promise.resolve(makePromise(fs.readdir, [dirPath])).then(function ($await_1) {
+            try {
+                contents = $await_1;
+                return Promise.resolve(lstatFiles(dirPath, contents)).then(function ($await_2) {
+                    try {
+                        lstatRes = $await_2;
+                        filteredFiles = filterFiles(lstatRes, recursive);
+
+                        promises = filteredFiles.map(function (_ref2) {
+                            return new Promise(function ($return, $error) {
+                                var lstat, path, relativePath, promise, data;
+                                lstat = _ref2.lstat, path = _ref2.path, relativePath = _ref2.relativePath;
+
+                                promise = Promise.resolve();
+                                if (lstat.isDirectory()) {
+                                    promise = readDir(path, recursive);
+                                } else if (lstat.isFile()) {
+                                    promise = read(path);
+                                }
+                                return Promise.resolve(promise).then(function ($await_3) {
+                                    try {
+                                        data = $await_3;
+                                        return $return({ relativePath, data });
+                                    } catch ($boundEx) {
+                                        return $error($boundEx);
+                                    }
+                                }.bind(this), $error);
+                            }.bind(this));
+                        });
+                        return Promise.resolve(Promise.all(promises)).then(function ($await_4) {
+                            try {
+                                allRead = $await_4;
+                                res = allRead.reduce(function (acc, _ref3) {
+                                    var data = _ref3.data,
+                                        relativePath = _ref3.relativePath;
+
+                                    var d = {
+                                        [relativePath]: data
+                                    };
+                                    return Object.assign(acc, d);
+                                }, {});
+                                return $return(res);
+                            } catch ($boundEx) {
+                                return $error($boundEx);
+                            }
+                        }.bind(this), $error);
+                    } catch ($boundEx) {
+                        return $error($boundEx);
+                    }
+                }.bind(this), $error);
+            } catch ($boundEx) {
+                return $error($boundEx);
             }
-            return promise.then(function (res) {
-                return { file: file.relativePath, data: res };
-            });
-        });
-        return Promise.all(promises);
-    }).then(function (res) {
-        return res.reduce(function (acc, current) {
-            return Object.assign({}, acc, { [current.file]: current.data });
-        }, {});
-    });
+        }.bind(this), $error);
+    }.bind(this));
 }
 
 module.exports = readDir;

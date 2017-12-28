@@ -1,4 +1,6 @@
-var fs = require('fs');
+var _require = require('fs'),
+    createReadStream = _require.createReadStream;
+
 var Catchment = require('catchment');
 
 /**
@@ -8,17 +10,36 @@ var Catchment = require('catchment');
  * file not found.
  */
 function read(filePath) {
-    try {
-        var rs = fs.createReadStream(filePath);
-        return new Promise(function (resolve, reject) {
-            rs.on('error', reject);
-            var catchment = new Catchment();
-            rs.pipe(catchment);
-            return catchment.promise.then(resolve);
-        });
-    } catch (err) {
-        return Promise.reject(err);
-    }
+    return new Promise(function ($return, $error) {
+        var rs, catchmentRes;
+
+        rs = createReadStream(filePath);
+        return Promise.resolve(new Promise(function (resolve, reject) {
+            return new Promise(function ($return, $error) {
+                var catchment, res;
+
+                rs.on('error', reject);
+                catchment = new Catchment();
+                rs.pipe(catchment);
+                return Promise.resolve(catchment.promise).then(function ($await_1) {
+                    try {
+                        res = $await_1;
+                        resolve(res);
+                        return $return();
+                    } catch ($boundEx) {
+                        return $error($boundEx);
+                    }
+                }.bind(this), $error);
+            }.bind(this));
+        })).then(function ($await_2) {
+            try {
+                catchmentRes = $await_2;
+                return $return(catchmentRes);
+            } catch ($boundEx) {
+                return $error($boundEx);
+            }
+        }.bind(this), $error);
+    }.bind(this));
 }
 
 module.exports = read;

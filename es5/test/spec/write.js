@@ -29,7 +29,7 @@ var writeTestSuite = {
             return Promise.resolve(write(ws, testString)).then(function ($await_5) {
                 try {
                     assert.deepEqual(allData, [testString]);
-                    assert(!ws.writable);
+                    assert(ws._writableState.ended);
                     return $return();
                 } catch ($boundEx) {
                     return $error($boundEx);
@@ -55,7 +55,7 @@ var writeTestSuite = {
                     resWs = $await_6;
                     assert.strictEqual(resWs, ws);
                     assert.deepEqual(allData, [testString]);
-                    assert(resWs._writableState.ended);
+                    assert(ws._writableState.ended);
                     return $return();
                 } catch ($boundEx) {
                     return $error($boundEx);
@@ -203,7 +203,7 @@ var writeTestSuite = {
             return Promise.resolve(write(ws, null)).then(function ($await_11) {
                 try {
                     assert.deepEqual(allData, []);
-                    assert(!ws.writable);
+                    assert(ws._writableState.ended);
                     return $return();
                 } catch ($boundEx) {
                     return $error($boundEx);
@@ -221,7 +221,7 @@ var writeTestSuite = {
             return Promise.resolve(write(ws, buffer)).then(function ($await_12) {
                 try {
                     assert.deepEqual(allRawData, [buffer]);
-                    assert(!ws.writable);
+                    assert(ws._writableState.ended);
                     return $return();
                 } catch ($boundEx) {
                     return $error($boundEx);

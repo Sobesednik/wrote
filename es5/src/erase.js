@@ -1,4 +1,4 @@
-var makePromise = require('makepromise');
+var makePromise = require('makepromise/es5/src/');
 var fs = require('fs');
 
 function unlink(path) {
@@ -17,8 +17,8 @@ function endStream(ws) {
     return new Promise(function ($return, $error) {
         var promise;
 
-        if (!ws.writable || ws.closed) {
-            return $error(new Error('stream should be writable'));
+        if (ws.closed) {
+            return $return();
         }
         promise = new Promise(function (resolve, reject) {
             ws.once('close', resolve);

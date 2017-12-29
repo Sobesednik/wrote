@@ -3,7 +3,7 @@ var _require = require('path'),
     resolve = _require.resolve;
 
 var fs = require('fs');
-var makePromise = require('makepromise');
+var makePromise = require('makepromise/es5/src/');
 
 /**
  * A file representation

@@ -1,6 +1,6 @@
 var Readable = require('stream').Readable;
 var Writable = require('stream').Writable;
-var makePromise = require('makepromise');
+var makePromise = require('makepromise/es5/src/');
 
 /**
  * Write data to the stream, and resolve when it's ended.

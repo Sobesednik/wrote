@@ -1,5 +1,5 @@
 var assert = require('assert');
-var makePromise = require('makepromise');
+var makePromise = require('makepromise/es5/src/');
 var erase = require('../../src/erase');
 var createWritable = require('../../src/create-writable');
 var context = require('../context/WroteContext');

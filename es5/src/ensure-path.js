@@ -1,5 +1,5 @@
 var fs = require('fs');
-var makePromise = require('makepromise');
+var makePromise = require('makepromise/es5/src/');
 
 var _require = require('path'),
     dirname = _require.dirname;
@@ -12,6 +12,8 @@ var _require = require('path'),
  * @returns {Promise.<string>} Same path as passed
  * @throws {Error} When the first folder in the path is non-executable
  */
+
+
 function ensurePath(path) {
     return new Promise(function ($return, $error) {
         var dir;

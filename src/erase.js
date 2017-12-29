@@ -6,8 +6,8 @@ async function unlink(path) {
 }
 
 async function endStream(ws) {
-    if (!ws.writable || ws.closed) {
-        throw new Error('stream should be writable')
+    if (ws.closed) {
+        return
     }
     const promise = new Promise((resolve, reject) => {
         ws.once('close', resolve)

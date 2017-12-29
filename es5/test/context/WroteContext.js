@@ -1,7 +1,7 @@
 var assert = require('assert');
 var Catchment = require('catchment');
 var fs = require('fs');
-var makePromise = require('makepromise');
+var makePromise = require('makepromise/es5/src/');
 
 var _require = require('os'),
     tmpdir = _require.tmpdir;
@@ -14,7 +14,9 @@ var spawnCommand = require('spawncommand');
 var _require3 = require('../../src/'),
     createWritable = _require3.createWritable,
     write = _require3.write,
-    erase = _require3.erase;
+    erase = _require3.erase,
+    readDir = _require3.readDir,
+    readDirStructure = _require3.readDirStructure;
 
 var fixturesStructure = require('../fixtures/expected/read-dir-structure');
 
@@ -125,6 +127,96 @@ function WroteContext() {
         });
         tempFileWs = void 0;
         Object.defineProperties(this, {
+            readDir: {
+                value() {
+                    var $args = arguments;return new Promise(function ($return, $error) {
+                        var res;
+                        return Promise.resolve(readDir.apply(undefined, $args)).then(function ($await_9) {
+                            try {
+                                res = $await_9;
+                                return $return(res);
+                            } catch ($boundEx) {
+                                return $error($boundEx);
+                            }
+                        }.bind(this), $error);
+                    }.bind(this));
+                }
+            },
+            readDirStructure: {
+                value() {
+                    var $args = arguments;return new Promise(function ($return, $error) {
+                        var res;
+                        return Promise.resolve(readDirStructure.apply(undefined, $args)).then(function ($await_10) {
+                            try {
+                                res = $await_10;
+                                return $return(res);
+                            } catch ($boundEx) {
+                                return $error($boundEx);
+                            }
+                        }.bind(this), $error);
+                    }.bind(this));
+                }
+            },
+            readFixturesStructure: {
+                value() {
+                    return new Promise(function ($return, $error) {
+                        var res;
+                        return Promise.resolve(readDirStructure(FIXTURES_TEST_DIR)).then(function ($await_11) {
+                            try {
+                                res = $await_11;
+                                return $return(res);
+                            } catch ($boundEx) {
+                                return $error($boundEx);
+                            }
+                        }.bind(this), $error);
+                    }.bind(this));
+                }
+            },
+            readTempStructure: {
+                value() {
+                    return new Promise(function ($return, $error) {
+                        var res;
+                        return Promise.resolve(readDirStructure(TEMP_TEST_DIR)).then(function ($await_12) {
+                            try {
+                                res = $await_12;
+                                return $return(res);
+                            } catch ($boundEx) {
+                                return $error($boundEx);
+                            }
+                        }.bind(this), $error);
+                    }.bind(this));
+                }
+            },
+            readTemp: {
+                value() {
+                    return new Promise(function ($return, $error) {
+                        var res;
+                        return Promise.resolve(readDir(TEMP_TEST_DIR, true)).then(function ($await_13) {
+                            try {
+                                res = $await_13;
+                                return $return(res);
+                            } catch ($boundEx) {
+                                return $error($boundEx);
+                            }
+                        }.bind(this), $error);
+                    }.bind(this));
+                }
+            },
+            readFixtures: {
+                value() {
+                    return new Promise(function ($return, $error) {
+                        var res;
+                        return Promise.resolve(readDir(FIXTURES_TEST_DIR, true)).then(function ($await_14) {
+                            try {
+                                res = $await_14;
+                                return $return(res);
+                            } catch ($boundEx) {
+                                return $error($boundEx);
+                            }
+                        }.bind(this), $error);
+                    }.bind(this));
+                }
+            },
             tempFile: {
                 get() {
                     return this._tempFile || createTempFilePath();
@@ -140,11 +232,11 @@ function WroteContext() {
                         var tempFile, ws;
 
                         tempFile = createTempFilePath();
-                        return Promise.resolve(createWritable(tempFile)).then(function ($await_9) {
+                        return Promise.resolve(createWritable(tempFile)).then(function ($await_15) {
                             try {
-                                ws = $await_9;
+                                ws = $await_15;
                                 tempFileWs = ws;
-                                return Promise.resolve(write(ws, this.TEST_DATA)).then(function ($await_10) {
+                                return Promise.resolve(write(ws, this.TEST_DATA)).then(function ($await_16) {
                                     try {
                                         this._tempFile = tempFile;
                                         return $return();
@@ -234,7 +326,7 @@ function WroteContext() {
                                 return $error($boundEx);
                             }
                         }.bind(this);try {
-                            return Promise.resolve(makePromise(fs.mkdir, [TEMP_NOX_DIR, 0o666])).then(function ($await_11) {
+                            return Promise.resolve(makePromise(fs.mkdir, [TEMP_NOX_DIR, 0o666])).then(function ($await_17) {
                                 try {
                                     this._TEMP_NOX_DIR = TEMP_NOX_DIR;
                                     return $Try_2_Post();
@@ -265,7 +357,7 @@ function WroteContext() {
                             promises.push(promise);
                         }
                         // remove temp file
-                        return Promise.resolve(Promise.all(promises)).then(function ($await_12) {
+                        return Promise.resolve(Promise.all(promises)).then(function ($await_18) {
                             try {
                                 return $return();
                             } catch ($boundEx) {
@@ -294,9 +386,9 @@ function WroteContext() {
             }
         }.bind(this);try {
             _spawnCommand = spawnCommand('rm', ['-rf', TEMP_TEST_DIR]), promise = _spawnCommand.promise;
-            return Promise.resolve(promise).then(function ($await_13) {
+            return Promise.resolve(promise).then(function ($await_19) {
                 try {
-                    return Promise.resolve(makePromise(fs.mkdir, [TEMP_TEST_DIR, 0o777])).then(function ($await_14) {
+                    return Promise.resolve(makePromise(fs.mkdir, [TEMP_TEST_DIR, 0o777])).then(function ($await_20) {
                         try {
                             this._TEMP_TEST_DIR = TEMP_TEST_DIR;
                             return $Try_3_Post();

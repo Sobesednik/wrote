@@ -1,3 +1,10 @@
+## 29 December 2017
+
+### 1.1.0
+
+* [feature] `clone` with regular expressions transforms
+* [feature] update `makePromise`
+
 ## 1.0.0 (28 Dec 2017)
 
 * [feature] `breaking`

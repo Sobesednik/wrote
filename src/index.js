@@ -5,6 +5,7 @@ const read = require('./read')
 const readDir = require('./read-dir')
 const readDirStructure = require('./read-dir-structure')
 const createWritable = require('./create-writable')
+const clone = require('./clone')
 
 module.exports = {
     createWritable,
@@ -14,4 +15,5 @@ module.exports = {
     read,
     readDir,
     readDirStructure,
+    clone,
 }

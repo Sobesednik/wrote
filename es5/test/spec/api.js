@@ -7,6 +7,7 @@ var readDir = require('../../src/read-dir');
 var write = require('../../src/write');
 var readDirStructure = require('../../src/read-dir-structure');
 var createWritable = require('../../src/create-writable');
+var clone = require('../../src/clone');
 var api = require('../../src/');
 
 var apiTestSuite = {
@@ -34,6 +35,9 @@ var apiTestSuite = {
     '1.0.0 should export an object and createWritable instead of wrote'() {
         assert(typeof api === 'object');
         assert.strictEqual(api.createWritable, createWritable);
+    },
+    '1.1.0 should export clone'() {
+        assert.strictEqual(api.clone, clone);
     }
 };
 

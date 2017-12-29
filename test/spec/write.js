@@ -22,7 +22,7 @@ const writeTestSuite = {
         const { ws, allData } = createWs()
         await write(ws, testString)
         assert.deepEqual(allData, [testString])
-        assert(!ws.writable)
+        assert(ws._writableState.ended)
     },
     async 'should pipe a readable to the stream'() {
         const testString = 'hello world'
@@ -36,7 +36,7 @@ const writeTestSuite = {
         const resWs = await write(ws, rs)
         assert.strictEqual(resWs, ws)
         assert.deepEqual(allData, [testString])
-        assert(resWs._writableState.ended)
+        assert(ws._writableState.ended)
     },
     async 'should reject when reabable is not readable'() {
         const testString = 'hello world'
@@ -93,7 +93,7 @@ const writeTestSuite = {
         const { ws, allData } = createWs()
         await write(ws, null)
         assert.deepEqual(allData, [])
-        assert(!ws.writable)
+        assert(ws._writableState.ended)
     },
     async 'should write buffer'() {
         const testString = 'hello world'
@@ -101,7 +101,7 @@ const writeTestSuite = {
         const { ws, allRawData } = createWs()
         await write(ws, buffer)
         assert.deepEqual(allRawData, [buffer])
-        assert(!ws.writable)
+        assert(ws._writableState.ended)
     },
     async 'should reject if writable is not Writable'() {
         try {

@@ -42,6 +42,37 @@ If you don't have a file, a new one in the temp directory will be created for yo
 })()
 ```
 
+## `wrote.clone({ from: string, to: string, regexes: [] }): Promise`
+
+Clone a directory by copying contents of files and creating symlinks. Regular
+expressions can be used to transform data being copied.
+
+```js
+const { clone } = require('wrote');
+
+(async () => {
+    const from = './directory'
+    const to = './clone'
+
+    await clone({
+        from,
+        to,
+        regexes: [
+            {
+                re: /{{ name }}/g, // use /g flag for global replacements
+                replacement: 'Garry',
+            },
+            {
+                re: /{{ age }}/,
+                replacement: '30',
+            },
+        ],
+    })
+    // or,
+    // await clone({ to, from })
+})()
+```
+
 ## `wrote.erase(ws: Writable): Promise.<Writable>`
 
 Erase file and close stream.

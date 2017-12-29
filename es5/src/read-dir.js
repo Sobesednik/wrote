@@ -1,5 +1,5 @@
 var fs = require('fs');
-var makePromise = require('makepromise');
+var makePromise = require('makepromise/es5/src/');
 var read = require('./read');
 
 var _require = require('./lib/'),

@@ -37,10 +37,11 @@
     "fast-async": "6.3.0",
     "npm-run-all": "4.1.2",
     "spawncommand": "1.1.0",
-    "zoroaster": "0.4.4"
+    "zoroaster": "0.4.6"
   },
   "dependencies": {
     "catchment": "1.0.0",
-    "makepromise": "1.0.0"
+    "makepromise": "1.1.1",
+    "restream": "1.2.0"
   }
 }

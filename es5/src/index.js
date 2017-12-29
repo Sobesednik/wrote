@@ -5,6 +5,7 @@ var read = require('./read');
 var readDir = require('./read-dir');
 var readDirStructure = require('./read-dir-structure');
 var createWritable = require('./create-writable');
+var clone = require('./clone');
 
 module.exports = {
     createWritable,
@@ -13,5 +14,6 @@ module.exports = {
     erase,
     read,
     readDir,
-    readDirStructure
+    readDirStructure,
+    clone
 };

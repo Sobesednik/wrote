@@ -5,7 +5,9 @@ const makePromise = require('makepromise')
 const { tmpdir } = require('os')
 const { resolve } = require('path')
 const spawnCommand = require('spawncommand')
-const { createWritable, write, erase } = require('../../src/')
+const {
+    createWritable, write, erase, readDir, readDirStructure,
+} = require('../../src/')
 const fixturesStructure = require('../fixtures/expected/read-dir-structure')
 
 const FIXTURES_DIR = resolve(__dirname, '../fixtures/')
@@ -54,6 +56,42 @@ async function WroteContext() {
     })
     let tempFileWs
     Object.defineProperties(this, {
+        readDir: {
+            async value(...args) {
+                const res = await readDir(...args)
+                return res
+            },
+        },
+        readDirStructure: {
+            async value(...args) {
+                const res = await readDirStructure(...args)
+                return res
+            },
+        },
+        readFixturesStructure: {
+            async value() {
+                const res = await readDirStructure(FIXTURES_TEST_DIR)
+                return res
+            },
+        },
+        readTempStructure: {
+            async value() {
+                const res = await readDirStructure(TEMP_TEST_DIR)
+                return res
+            },
+        },
+        readTemp: {
+            async value() {
+                const res = await readDir(TEMP_TEST_DIR, true)
+                return res
+            },
+        },
+        readFixtures: {
+            async value() {
+                const res = await readDir(FIXTURES_TEST_DIR, true)
+                return res
+            },
+        },
         tempFile: {
             get() {
                 return this._tempFile || createTempFilePath()

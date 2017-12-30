@@ -1,3 +1,9 @@
+## 30 December 2017
+
+## 1.2.0
+
+* [feature] `exists`, `assertExists`, `assertDoesNotExist`
+
 ## 29 December 2017
 
 ### 1.1.0

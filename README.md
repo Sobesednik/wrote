@@ -42,6 +42,57 @@ If you don't have a file, a new one in the temp directory will be created for yo
 })()
 ```
 
+## `wrote.exists(path: string): Promise.<boolean>`
+
+Check if the path on the filesystem exists. Throws if path is not accessible
+due to permissions.
+
+```js
+const { exists } = require('wrote');
+
+(async () => {
+    await exists('unknown-path') // false
+    await exists(__filename) // true
+    await exists(__dirname) // true
+})()
+```
+
+## `wrote.assertExists(path: string): Promise`
+
+Check if the path on the filesystem exists, and throw if it does not, or cannot
+be accessed.
+
+```js
+const { assertExists } = require('wrote');
+
+(async () => {
+    try {
+        await assertExists('unknown-path')
+    } catch (err) {
+        console.log(err) // Path unknown-path does not exist.
+    }
+    await assertExists(__filename) // ok
+})()
+```
+
+## `wrote.assertDoesNotExist(path: string): Promise`
+
+Check if the path on the filesystem does not exists, and throw if it does, or
+cannot be accessed.
+
+```js
+const { assertDoesNotExist } = require('wrote');
+
+(async () => {
+    try {
+        await assertDoesNotExist(__filename)
+    } catch (err) {
+        console.log(err) // Path /wrote/examples/assert-does-not-exist.js exists.
+    }
+    await assertDoesNotExist('unknown-file') // ok
+})()
+```
+
 ## `wrote.clone({ from: string, to: string, regexes: [] }): Promise`
 
 Clone a directory by copying contents of files and creating symlinks. Regular

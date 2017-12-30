@@ -8,6 +8,9 @@ const write = require('../../src/write')
 const readDirStructure = require('../../src/read-dir-structure')
 const createWritable = require('../../src/create-writable')
 const clone = require('../../src/clone')
+const exists = require('../../src/exists')
+const assertExists = require('../../src/assert-exists')
+const assertDoesNotExist = require('../../src/assert-does-not-exist')
 const api = require('../../')
 
 const apiTestSuite = {
@@ -38,6 +41,11 @@ const apiTestSuite = {
     },
     '1.1.0 should export clone'() {
         assert.strictEqual(api.clone, clone)
+    },
+    '1.2.0 should export exists, assertExists, assertDoesNotExist'() {
+        assert.strictEqual(api.exists, exists)
+        assert.strictEqual(api.assertExists, assertExists)
+        assert.strictEqual(api.assertDoesNotExist, assertDoesNotExist)
     },
 }
 

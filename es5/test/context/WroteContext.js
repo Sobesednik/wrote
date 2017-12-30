@@ -301,12 +301,12 @@ function WroteContext() {
                     return _this._TEMP_NOX_DIR;
                 }
             },
-            makeNoExecutableDirectory: { value() {
+            makeNoExecutableDirectory: { value: function value() {
                     return new Promise(function ($return, $error) {
                         var message;
 
-                        if (this._TEMP_NOX_DIR) {
-                            return $return(Promise.reject(new Error('No executable directory already created')));
+                        if (_this._TEMP_NOX_DIR) {
+                            return $error(new Error('No executable directory already created'));
                         }
                         var $Try_2_Post = function () {
                             try {
@@ -328,8 +328,8 @@ function WroteContext() {
                         }.bind(this);try {
                             return Promise.resolve(makePromise(fs.mkdir, [TEMP_NOX_DIR, 0o666])).then(function ($await_17) {
                                 try {
-                                    this._TEMP_NOX_DIR = TEMP_NOX_DIR;
-                                    return $Try_2_Post();
+                                    _this._TEMP_NOX_DIR = TEMP_NOX_DIR;
+                                    return $return(TEMP_NOX_DIR);
                                 } catch ($boundEx) {
                                     return $Try_2_Catch($boundEx);
                                 }
@@ -339,17 +339,17 @@ function WroteContext() {
                         }
                     }.bind(this));
                 } },
-            _destroy: { value() {
+            _destroy: { value: function value() {
                     return new Promise(function ($return, $error) {
                         var promises, pc, pc2, promise;
 
                         promises = [];
-                        if (this._TEMP_TEST_DIR && !process.env.KEEP_TEMP) {
-                            pc = spawnCommand('rm', ['-rf', this._TEMP_TEST_DIR]);
+                        if (_this._TEMP_TEST_DIR && !process.env.KEEP_TEMP) {
+                            pc = spawnCommand('rm', ['-rf', _this._TEMP_TEST_DIR]);
                             promises.push(pc.promise);
                         }
-                        if (this._TEMP_NOX_DIR) {
-                            pc2 = spawnCommand('rm', ['-rf', this._TEMP_NOX_DIR]);
+                        if (_this._TEMP_NOX_DIR) {
+                            pc2 = spawnCommand('rm', ['-rf', _this._TEMP_NOX_DIR]);
                             promises.push(pc2.promise);
                         }
                         if (tempFileWs) {

@@ -8,6 +8,9 @@ var write = require('../../src/write');
 var readDirStructure = require('../../src/read-dir-structure');
 var createWritable = require('../../src/create-writable');
 var clone = require('../../src/clone');
+var exists = require('../../src/exists');
+var assertExists = require('../../src/assert-exists');
+var assertDoesNotExist = require('../../src/assert-does-not-exist');
 var api = require('../../src/');
 
 var apiTestSuite = {
@@ -38,6 +41,11 @@ var apiTestSuite = {
     },
     '1.1.0 should export clone'() {
         assert.strictEqual(api.clone, clone);
+    },
+    '1.2.0 should export exists, assertExists, assertDoesNotExist'() {
+        assert.strictEqual(api.exists, exists);
+        assert.strictEqual(api.assertExists, assertExists);
+        assert.strictEqual(api.assertDoesNotExist, assertDoesNotExist);
     }
 };
 

@@ -6,6 +6,9 @@ var readDir = require('./read-dir');
 var readDirStructure = require('./read-dir-structure');
 var createWritable = require('./create-writable');
 var clone = require('./clone');
+var exists = require('./exists');
+var assertExists = require('./assert-exists');
+var assertDoesNotExist = require('./assert-does-not-exist');
 
 module.exports = {
     createWritable,
@@ -15,5 +18,8 @@ module.exports = {
     read,
     readDir,
     readDirStructure,
-    clone
+    clone,
+    exists,
+    assertExists,
+    assertDoesNotExist
 };

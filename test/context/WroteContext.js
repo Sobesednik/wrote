@@ -144,20 +144,21 @@ async function WroteContext() {
                 return this._TEMP_NOX_DIR
             },
         },
-        makeNoExecutableDirectory: { async value() {
+        makeNoExecutableDirectory: { value: async () => {
             if (this._TEMP_NOX_DIR) {
-                return Promise.reject(new Error('No executable directory already created'))
+                throw new Error('No executable directory already created')
             }
             try {
                 await makePromise(fs.mkdir, [TEMP_NOX_DIR, 0o666])
                 this._TEMP_NOX_DIR = TEMP_NOX_DIR
+                return TEMP_NOX_DIR
             } catch ({ message }) {
                 if (/EEXIST/.test(message)) {
                     throw new Error('WroteContext: Could not make no executable directory: it already exists')
                 }
             }
         }},
-        _destroy: { async value() {
+        _destroy: { value: async () => {
             const promises = []
             if (this._TEMP_TEST_DIR && !process.env.KEEP_TEMP) {
                 const pc = spawnCommand('rm', ['-rf', this._TEMP_TEST_DIR])

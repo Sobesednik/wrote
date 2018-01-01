@@ -1,4 +1,5 @@
 const { Readable, Writable } = require('stream')
+const { throws } = require('zoroaster/assert')
 const assert = require('assert')
 const Catchment = require('catchment')
 const write = require('../../src/write')
@@ -28,9 +29,9 @@ const writeTestSuite = {
         const testString = 'hello world'
         const { ws, allData } = createWs()
         const rs = new Readable({
-            read: () => {
-                rs.push(testString)
-                rs.push(null)
+            read() {
+                this.push(testString)
+                this.push(null)
             },
         })
         const resWs = await write(ws, rs)
@@ -42,20 +43,20 @@ const writeTestSuite = {
         const testString = 'hello world'
         const { ws } = createWs()
         const rs = new Readable({
-            read: () => {
-                rs.push(testString)
-                rs.push(null)
+            read() {
+                this.push(testString)
+                this.push(null)
             },
         })
         const catchment = new Catchment()
         rs.pipe(catchment)
         await catchment.promise
-        try {
-            await write(ws, rs)
-            throw new Error('Should have been rejected')
-        } catch ({ message }) {
-            assert(/Stream is not readable/.test(message))
-        }
+
+        await throws({
+            fn: write,
+            args: [ws, rs],
+            message: 'Stream is not readable',
+        })
     },
     async 'should reject when readable throws'() {
         const { ws } = createWs()
@@ -65,29 +66,27 @@ const writeTestSuite = {
                 process.nextTick(() => this.emit('error', error))
             },
         })
-        try {
-            await write(ws, rs)
-            throw new Error('Should have been rejected')
-        } catch (err) {
-            assert.strictEqual(err, error)
-        }
+        await throws({
+            fn: write,
+            args: [ws, rs],
+            error,
+        })
     },
     async 'should reject when writable throws'() {
         const testString = 'hello world'
         const error = new Error('test-error')
         const { ws } = createWs(error)
         const rs = new Readable({
-            read: () => {
+            read() {
                 rs.push(testString)
                 rs.push(null)
             },
         })
-        try {
-            await write(ws, rs)
-            throw new Error('Should have been rejected')
-        } catch (err) {
-            assert.strictEqual(err, error)
-        }
+        await throws({
+            fn: write,
+            args: [ws, rs],
+            error,
+        })
     },
     async 'should write nothing when null given'() {
         const { ws, allData } = createWs()
@@ -104,12 +103,11 @@ const writeTestSuite = {
         assert(ws._writableState.ended)
     },
     async 'should reject if writable is not Writable'() {
-        try {
-            await write('string')
-            throw new Error('Should have been rejected')
-        } catch ({ message }) {
-            assert(/Writable stream expected/.test(message))
-        }
+        await throws({
+            fn: write,
+            args: ['string'],
+            message: 'Writable stream expected',
+        })
     },
 }
 

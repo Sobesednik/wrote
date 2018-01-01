@@ -11,6 +11,8 @@ const clone = require('../../src/clone')
 const exists = require('../../src/exists')
 const assertExists = require('../../src/assert-exists')
 const assertDoesNotExist = require('../../src/assert-does-not-exist')
+const readJSON = require('../../src/read-json')
+const writeJSON = require('../../src/write-json')
 const api = require('../../')
 
 const apiTestSuite = {
@@ -46,6 +48,10 @@ const apiTestSuite = {
         assert.strictEqual(api.exists, exists)
         assert.strictEqual(api.assertExists, assertExists)
         assert.strictEqual(api.assertDoesNotExist, assertDoesNotExist)
+    },
+    '1.3.0 should export readJSON, writeJSON'() {
+        assert.strictEqual(api.readJSON, readJSON)
+        assert.strictEqual(api.writeJSON, writeJSON)
     },
 }
 

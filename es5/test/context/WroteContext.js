@@ -16,9 +16,11 @@ var _require3 = require('../../src/'),
     write = _require3.write,
     erase = _require3.erase,
     readDir = _require3.readDir,
-    readDirStructure = _require3.readDirStructure;
+    readDirStructure = _require3.readDirStructure,
+    read = _require3.read;
 
 var fixturesStructure = require('../fixtures/expected/read-dir-structure');
+var expectedJSON = require('../fixtures/test.json');
 
 var FIXTURES_DIR = resolve(__dirname, '../fixtures/');
 var FIXTURES_TEST_DIR = resolve(FIXTURES_DIR, 'directory');
@@ -120,6 +122,11 @@ function WroteContext() {
         var _this, tempFileWs, _spawnCommand, promise;
 
         _this = this;
+
+        this.read = read;
+        this.expectedJSON = expectedJSON;
+        this.JSONpath = resolve(FIXTURES_DIR, 'test.json');
+        this.invalidJSONpath = resolve(FIXTURES_DIR, 'invalid.json');
 
         Object.assign(this, {
             TEST_NAME,

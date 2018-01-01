@@ -366,6 +366,11 @@ const DIR_PATH = path.join(__dirname, '../test/fixtures/directory');
 
 ## todo
 
+- `eraseDir` to rm -rf
+- `cloneFile` to clone a single file
+- `write` with string as path
+- `erase` with string as path
+- `clone` with permissions
 - pass options to `fs.createWriteStream` in `wrote.createWritable`
 
 ---

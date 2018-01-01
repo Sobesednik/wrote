@@ -1,3 +1,9 @@
+## 1 January 2018
+
+### 1.3.0
+
+* [feature] `writeJSON`, `readJSON`
+
 ## 30 December 2017
 
 ## 1.2.0

@@ -37,7 +37,7 @@
     "fast-async": "6.3.0",
     "npm-run-all": "4.1.2",
     "spawncommand": "1.1.0",
-    "zoroaster": "0.4.6"
+    "zoroaster": "0.5.2"
   },
   "dependencies": {
     "catchment": "1.0.0",

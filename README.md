@@ -196,7 +196,7 @@ const { resolve } = require('path');
 })()
 ```
 
-## `wrote.read(filePath: string): Promise<string>`
+## `wrote.read(path: string): Promise.<string>`
 
 Read a file fully. Returns a Promise resolved with the file contents, and
 rejects if path is not a string or file not found (`ENOENT`).
@@ -211,6 +211,39 @@ const { read } = require('wrote');
 ```
 
 `examples/read.js`: _this program will print the contents of itself_
+
+## `wrote.readJSON(path: string): Promise.<object>`
+
+Read a json file and parse its contents.
+
+```js
+const { readJSON } = require('wrote');
+
+(async () => {
+    const res = await read('path/to/file.json')
+    console.log(res)
+})()
+```
+
+## `wrote.writeJSON(path: string, object: object, { replacer?: function, space?: string|number }): Promise`
+
+Serialise an object with `JSON.stringify` and write it to a file. Pass `space`
+and `replacer` in the options object.
+
+```js
+const { writeJSON } = require('wrote');
+
+(async () => {
+    const object = {
+        test: 'data',
+        date: new Date(),
+    }
+    await writeJSON('path/to/file.json', object, {
+        space: 2,
+        // replacer: () => {}
+    })
+})()
+```
 
 ## `wrote.readDir(dirPath: string, recursive=: boolean): Promise<object>`
 

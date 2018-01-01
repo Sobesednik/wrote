@@ -6,9 +6,10 @@ const { tmpdir } = require('os')
 const { resolve } = require('path')
 const spawnCommand = require('spawncommand')
 const {
-    createWritable, write, erase, readDir, readDirStructure,
+    createWritable, write, erase, readDir, readDirStructure, read,
 } = require('../../src/')
 const fixturesStructure = require('../fixtures/expected/read-dir-structure')
+const expectedJSON = require('../fixtures/test.json')
 
 const FIXTURES_DIR = resolve(__dirname, '../fixtures/')
 const FIXTURES_TEST_DIR = resolve(FIXTURES_DIR, 'directory')
@@ -50,6 +51,11 @@ const TEMP_TEST_DIR = resolve(TEMP_DIR, TEST_DIR_NAME)
 const TEMP_NOX_DIR = resolve(TEMP_DIR, TEST_DIR_NOX_NAME)
 
 async function WroteContext() {
+    this.read = read
+    this.expectedJSON = expectedJSON
+    this.JSONpath = resolve(FIXTURES_DIR, 'test.json')
+    this.invalidJSONpath = resolve(FIXTURES_DIR, 'invalid.json')
+
     Object.assign(this, {
         TEST_NAME,
         TEST_DATA: 'some test data for temp file',

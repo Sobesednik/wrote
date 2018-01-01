@@ -9,6 +9,8 @@ const clone = require('./clone')
 const exists = require('./exists')
 const assertExists = require('./assert-exists')
 const assertDoesNotExist = require('./assert-does-not-exist')
+const readJSON = require('./read-json')
+const writeJSON = require('./write-json')
 
 module.exports = {
     createWritable,
@@ -22,4 +24,6 @@ module.exports = {
     exists,
     assertExists,
     assertDoesNotExist,
+    readJSON,
+    writeJSON,
 }

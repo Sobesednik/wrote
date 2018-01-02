@@ -1,3 +1,10 @@
+## 2 January 2018
+
+### 1.4.0
+
+* [feature] `read` now accepts options, with `binary` property to read as a
+`Buffer`.
+
 ## 1 January 2018
 
 ### 1.3.0

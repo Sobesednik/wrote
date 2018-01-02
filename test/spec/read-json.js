@@ -19,7 +19,7 @@ const readJSONTestSuite = {
         await throws({
             fn: readJSON,
             args: [invalidJSONpath],
-            message: 'Unexpected token h in JSON at position 1',
+            message: /Unexpected token h/,
         })
     },
 }

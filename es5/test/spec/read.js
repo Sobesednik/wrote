@@ -1,18 +1,44 @@
-var assert = require('assert');
+var _require = require('zoroaster/assert'),
+    throws = _require.throws,
+    equal = _require.equal,
+    deepEqual = _require.deepEqual;
+
 var context = require('../context/WroteContext');
 var read = require('../../src/read');
 
 var readTestSuite = {
     context,
-    'should read a file'(ctx) {
+    'should read a file'(_ref) {
         return new Promise(function ($return, $error) {
-            var res;
-            return Promise.resolve(ctx.createTempFileWithData()).then(function ($await_3) {
+            var tempFile, createTempFileWithData, TEST_DATA, res;
+            tempFile = _ref.tempFile, createTempFileWithData = _ref.createTempFileWithData, TEST_DATA = _ref.TEST_DATA;
+            return Promise.resolve(createTempFileWithData()).then(function ($await_1) {
                 try {
-                    return Promise.resolve(read(ctx.tempFile)).then(function ($await_4) {
+                    return Promise.resolve(read(tempFile)).then(function ($await_2) {
+                        try {
+                            res = $await_2;
+                            equal(res, TEST_DATA);
+                            return $return();
+                        } catch ($boundEx) {
+                            return $error($boundEx);
+                        }
+                    }.bind(this), $error);
+                } catch ($boundEx) {
+                    return $error($boundEx);
+                }
+            }.bind(this), $error);
+        }.bind(this));
+    },
+    'should read a file in binary'(_ref2) {
+        return new Promise(function ($return, $error) {
+            var tempFile, createTempFileWithData, TEST_DATA_BUFFER, res;
+            tempFile = _ref2.tempFile, createTempFileWithData = _ref2.createTempFileWithData, TEST_DATA_BUFFER = _ref2.TEST_DATA_BUFFER;
+            return Promise.resolve(createTempFileWithData()).then(function ($await_3) {
+                try {
+                    return Promise.resolve(read(tempFile, { binary: true })).then(function ($await_4) {
                         try {
                             res = $await_4;
-                            assert.equal(res, ctx.TEST_DATA);
+                            deepEqual(res, TEST_DATA_BUFFER);
                             return $return();
                         } catch ($boundEx) {
                             return $error($boundEx);
@@ -26,69 +52,35 @@ var readTestSuite = {
     },
     'should reject if file not found'() {
         return new Promise(function ($return, $error) {
-            var filename, code, message;
+            var filename;
 
             filename = `${Math.floor(Math.random() * 1e5)}.data`;
-            var $Try_1_Post = function () {
+            return Promise.resolve(throws({
+                fn: read,
+                args: [filename],
+                code: 'ENOENT',
+                message: new RegExp(filename)
+            })).then(function ($await_5) {
                 try {
                     return $return();
                 } catch ($boundEx) {
                     return $error($boundEx);
                 }
-            }.bind(this);var $Try_1_Catch = function (_ref) {
-                try {
-                    code = _ref.code;
-                    message = _ref.message;
-
-                    assert(code, 'ENOENT');
-                    assert(message.indexOf(filename) !== -1);
-                    return $Try_1_Post();
-                } catch ($boundEx) {
-                    return $error($boundEx);
-                }
-            }.bind(this);try {
-                return Promise.resolve(read(filename)).then(function ($await_5) {
-                    try {
-                        throw new Error('should have been rejected with ENOENT');
-                    } catch ($boundEx) {
-                        return $Try_1_Catch($boundEx);
-                    }
-                }.bind(this), $Try_1_Catch);
-            } catch (_ref) {
-                $Try_1_Catch(_ref)
-            }
+            }.bind(this), $error);
         }.bind(this));
     },
     'should reject if path is not a string'() {
         return new Promise(function ($return, $error) {
-            var message;
-            var $Try_2_Post = function () {
+            return Promise.resolve(throws({
+                fn: read,
+                message: /path must be a string/
+            })).then(function ($await_6) {
                 try {
                     return $return();
                 } catch ($boundEx) {
                     return $error($boundEx);
                 }
-            }.bind(this);var $Try_2_Catch = function (_ref2) {
-                try {
-                    message = _ref2.message;
-
-                    assert(message.indexOf('path must be a string') !== -1);
-                    return $Try_2_Post();
-                } catch ($boundEx) {
-                    return $error($boundEx);
-                }
-            }.bind(this);
-            try {
-                return Promise.resolve(read()).then(function ($await_6) {
-                    try {
-                        throw new Error('should have been rejected');
-                    } catch ($boundEx) {
-                        return $Try_2_Catch($boundEx);
-                    }
-                }.bind(this), $Try_2_Catch);
-            } catch (_ref2) {
-                $Try_2_Catch(_ref2)
-            }
+            }.bind(this), $error);
         }.bind(this));
     }
 };

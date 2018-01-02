@@ -11,13 +11,16 @@ var _require2 = require('path'),
 
 var spawnCommand = require('spawncommand');
 
-var _require3 = require('../../src/'),
-    createWritable = _require3.createWritable,
-    write = _require3.write,
-    erase = _require3.erase,
-    readDir = _require3.readDir,
-    readDirStructure = _require3.readDirStructure,
-    read = _require3.read;
+var _require3 = require('noddy/es5'),
+    nodeGte = _require3.nodeGte;
+
+var _require4 = require('../../src/'),
+    createWritable = _require4.createWritable,
+    write = _require4.write,
+    erase = _require4.erase,
+    readDir = _require4.readDir,
+    readDirStructure = _require4.readDirStructure,
+    read = _require4.read;
 
 var fixturesStructure = require('../fixtures/expected/read-dir-structure');
 var expectedJSON = require('../fixtures/test.json');
@@ -131,6 +134,8 @@ function WroteContext() {
             TEST_NAME,
             TEST_DATA: 'some test data for temp file'
         });
+        this.TEST_DATA_BUFFER = nodeGte('v5.10.0') ? Buffer.from(this.TEST_DATA) : new Buffer(this.TEST_DATA);
+
         tempFileWs = void 0;
         Object.defineProperties(this, {
             readDir: {
@@ -233,7 +238,7 @@ function WroteContext() {
                     return fixturesStructure;
                 }
             },
-            createTempFileWithData: { value() {
+            createTempFileWithData: { value: function value() {
                     return new Promise(function ($return, $error) {
                         var tempFile, ws;
 
@@ -242,9 +247,9 @@ function WroteContext() {
                             try {
                                 ws = $await_15;
                                 tempFileWs = ws;
-                                return Promise.resolve(write(ws, this.TEST_DATA)).then(function ($await_16) {
+                                return Promise.resolve(write(ws, _this.TEST_DATA)).then(function ($await_16) {
                                     try {
-                                        this._tempFile = tempFile;
+                                        _this._tempFile = tempFile;
                                         return $return();
                                     } catch ($boundEx) {
                                         return $error($boundEx);

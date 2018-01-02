@@ -6,12 +6,18 @@ var Catchment = require('catchment/es5');
 /**
  * Read contents of a file to a variable.
  * @param {string} path path to the file to read
+ * @param {object} options options
+ * @param {boolean} [options.binary=false] whether to return a Buffer instead of a
+ * string
  * @returns {Promise<string>} Resolves with contents of the file, rejects if
  * file not found.
  */
 function read(path) {
-    return new Promise(function ($return, $error) {
-        var rs, catchmentRes;
+    var $args = arguments;return new Promise(function ($return, $error) {
+        var options, _options$binary, binary, rs, catchmentRes;
+
+        options = $args.length > 1 && $args[1] !== undefined ? $args[1] : {};
+        _options$binary = options.binary, binary = _options$binary === undefined ? false : _options$binary;
 
         rs = createReadStream(path);
         return Promise.resolve(new Promise(function (resolve, reject) {
@@ -19,7 +25,7 @@ function read(path) {
                 var _ref, promise, res;
 
                 rs.on('error', reject);
-                _ref = new Catchment({ rs }), promise = _ref.promise;
+                _ref = new Catchment({ rs, binary }), promise = _ref.promise;
                 return Promise.resolve(promise).then(function ($await_1) {
                     try {
                         res = $await_1;

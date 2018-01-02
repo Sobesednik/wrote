@@ -11,9 +11,8 @@ async function read(path) {
     const rs = createReadStream(path)
     const catchmentRes = await new Promise(async (resolve, reject) => {
         rs.on('error', reject)
-        const catchment = new Catchment()
-        rs.pipe(catchment)
-        const res = await catchment.promise
+        const { promise } = new Catchment({ rs })
+        const res = await promise
         resolve(res)
     })
     return catchmentRes

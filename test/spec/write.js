@@ -48,9 +48,8 @@ const writeTestSuite = {
                 this.push(null)
             },
         })
-        const catchment = new Catchment()
-        rs.pipe(catchment)
-        await catchment.promise
+        const { promise } = new Catchment({ rs })
+        await promise
 
         await throws({
             fn: write,

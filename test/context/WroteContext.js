@@ -38,9 +38,8 @@ async function assertCanWriteFile(path) {
     await write(ws, testData)
     const rs = fs.createReadStream(path)
 
-    const catchment = new Catchment()
-    rs.pipe(catchment)
-    const res = await catchment.promise
+    const { promise } = new Catchment({ rs })
+    const res = await promise
     assert.equal(res, testData)
 }
 

@@ -23,6 +23,10 @@
         ["transform-rename-import", {
             "original": "makepromise",
             "replacement": "makepromise/es5/src/"
+        }],
+        ["transform-rename-import", {
+            "original": "catchment",
+            "replacement": "catchment/es5"
         }]
     ]
 }

@@ -46,7 +46,7 @@ var readJSONTestSuite = {
             return Promise.resolve(throws({
                 fn: readJSON,
                 args: [invalidJSONpath],
-                message: 'Unexpected token h in JSON at position 1'
+                message: /Unexpected token h/
             })).then(function ($await_3) {
                 try {
                     return $return();

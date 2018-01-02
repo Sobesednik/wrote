@@ -1,5 +1,5 @@
 var assert = require('assert');
-var Catchment = require('catchment');
+var Catchment = require('catchment/es5');
 var fs = require('fs');
 var makePromise = require('makepromise/es5/src/');
 
@@ -79,7 +79,7 @@ function assertFileExists(path) {
 
 function assertCanWriteFile(path) {
     return new Promise(function ($return, $error) {
-        var testData, ws, rs, catchment, res;
+        var testData, ws, rs, _ref2, promise, res;
 
         testData = `some-test-data-${Date.now()}`;
         return Promise.resolve(createWritable(path)).then(function ($await_6) {
@@ -89,9 +89,8 @@ function assertCanWriteFile(path) {
                     try {
                         rs = fs.createReadStream(path);
 
-                        catchment = new Catchment();
-                        rs.pipe(catchment);
-                        return Promise.resolve(catchment.promise).then(function ($await_8) {
+                        _ref2 = new Catchment({ rs }), promise = _ref2.promise;
+                        return Promise.resolve(promise).then(function ($await_8) {
                             try {
                                 res = $await_8;
                                 assert.equal(res, testData);
@@ -321,9 +320,9 @@ function WroteContext() {
                             } catch ($boundEx) {
                                 return $error($boundEx);
                             }
-                        }.bind(this);var $Try_2_Catch = function (_ref2) {
+                        }.bind(this);var $Try_2_Catch = function (_ref3) {
                             try {
-                                message = _ref2.message;
+                                message = _ref3.message;
 
                                 if (/EEXIST/.test(message)) {
                                     throw new Error('WroteContext: Could not make no executable directory: it already exists');
@@ -341,8 +340,8 @@ function WroteContext() {
                                     return $Try_2_Catch($boundEx);
                                 }
                             }.bind(this), $Try_2_Catch);
-                        } catch (_ref2) {
-                            $Try_2_Catch(_ref2)
+                        } catch (_ref3) {
+                            $Try_2_Catch(_ref3)
                         }
                     }.bind(this));
                 } },

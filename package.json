@@ -40,7 +40,7 @@
     "zoroaster": "0.5.3"
   },
   "dependencies": {
-    "catchment": "2.0.0",
+    "catchment": "2.0.1",
     "makepromise": "1.1.1",
     "restream": "1.2.0"
   }

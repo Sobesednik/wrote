@@ -1,7 +1,7 @@
 var _require = require('fs'),
     createReadStream = _require.createReadStream;
 
-var Catchment = require('catchment');
+var Catchment = require('catchment/es5');
 
 /**
  * Read contents of a file to a variable.
@@ -16,12 +16,11 @@ function read(path) {
         rs = createReadStream(path);
         return Promise.resolve(new Promise(function (resolve, reject) {
             return new Promise(function ($return, $error) {
-                var catchment, res;
+                var _ref, promise, res;
 
                 rs.on('error', reject);
-                catchment = new Catchment();
-                rs.pipe(catchment);
-                return Promise.resolve(catchment.promise).then(function ($await_1) {
+                _ref = new Catchment({ rs }), promise = _ref.promise;
+                return Promise.resolve(promise).then(function ($await_1) {
                     try {
                         res = $await_1;
                         resolve(res);

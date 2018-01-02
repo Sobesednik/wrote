@@ -6,7 +6,7 @@ var _require2 = require('zoroaster/assert'),
     throws = _require2.throws;
 
 var assert = require('assert');
-var Catchment = require('catchment');
+var Catchment = require('catchment/es5');
 var write = require('../../src/write');
 
 function createWs(nextArg) {
@@ -68,7 +68,7 @@ var writeTestSuite = {
     },
     'should reject when reabable is not readable'() {
         return new Promise(function ($return, $error) {
-            var testString, _createWs3, ws, rs, catchment;
+            var testString, _createWs3, ws, rs, _ref, promise;
 
             testString = 'hello world';
             _createWs3 = createWs(), ws = _createWs3.ws;
@@ -79,9 +79,8 @@ var writeTestSuite = {
                     this.push(null);
                 }
             });
-            catchment = new Catchment();
-            rs.pipe(catchment);
-            return Promise.resolve(catchment.promise).then(function ($await_3) {
+            _ref = new Catchment({ rs }), promise = _ref.promise;
+            return Promise.resolve(promise).then(function ($await_3) {
                 try {
                     return Promise.resolve(throws({
                         fn: write,

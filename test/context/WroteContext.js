@@ -5,6 +5,7 @@ const makePromise = require('makepromise')
 const { tmpdir } = require('os')
 const { resolve } = require('path')
 const spawnCommand = require('spawncommand')
+const { nodeGte } = require('noddy')
 const {
     createWritable, write, erase, readDir, readDirStructure, read,
 } = require('../../src/')
@@ -59,6 +60,10 @@ async function WroteContext() {
         TEST_NAME,
         TEST_DATA: 'some test data for temp file',
     })
+    this.TEST_DATA_BUFFER = nodeGte('v5.10.0')
+        ? Buffer.from(this.TEST_DATA)
+        : new Buffer(this.TEST_DATA)
+
     let tempFileWs
     Object.defineProperties(this, {
         readDir: {
@@ -105,7 +110,7 @@ async function WroteContext() {
         expectedFixturesStructure: {
             get() { return fixturesStructure },
         },
-        createTempFileWithData: { async value() {
+        createTempFileWithData: { value: async () => {
             const tempFile = createTempFilePath()
             const ws = await createWritable(tempFile)
             tempFileWs = ws

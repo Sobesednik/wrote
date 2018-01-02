@@ -27,6 +27,10 @@
         ["transform-rename-import", {
             "original": "catchment",
             "replacement": "catchment/es5"
+        }],
+        ["transform-rename-import", {
+            "original": "noddy",
+            "replacement": "noddy/es5"
         }]
     ]
 }

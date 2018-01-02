@@ -196,7 +196,7 @@ const { resolve } = require('path');
 })()
 ```
 
-## `wrote.read(path: string): Promise.<string>`
+## `wrote.read(path: string, { binary?: boolean }): Promise.<string>`
 
 Read a file fully. Returns a Promise resolved with the file contents, and
 rejects if path is not a string or file not found (`ENOENT`).
@@ -211,6 +211,17 @@ const { read } = require('wrote');
 ```
 
 `examples/read.js`: _this program will print the contents of itself_
+
+Pass `{ binary: true }` options to read as a `Buffer`:
+
+```js
+const { read } = require('wrote');
+
+(async () => {
+    const buffer = await read(__filename, { binary: true })
+    console.log(buffer) // // <Buffer 63 6f 6e 73 74 20 7b ... >
+})()
+```
 
 ## `wrote.readJSON(path: string): Promise.<object>`
 
